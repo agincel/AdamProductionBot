@@ -1,0 +1,25 @@
+{
+  "name": "adamtestbot4",
+  "version": "4.0.0",
+  "description": "AdamTestBot, written from scratch as a hybrid Telegram and Discord bot.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/agincel/AdamProductionBot"
+  },
+  "keywords": [
+    "discord",
+    "telegram",
+    "bot"
+  ],
+  "author": "Adam Gincel",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^11.3.2",
+    "fs": "0.0.1-security",
+    "node-telegram-bot-api": "^0.30.0"
+  }
+}
