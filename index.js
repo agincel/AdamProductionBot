@@ -14,7 +14,11 @@ const DiscordBot = new Discord.Client();
 const discordToken = fs.readFileSync("./discordToken.txt", "utf8").replace("\n", "");
 DiscordBot.login(discordToken);
 
-const startDate = new Date(); //use to ignore all old messages
+let acceptingMessages = false;
+setTimeout(function() {
+	acceptingMessages = true;
+	console.log("Bot is now accepting messages.");
+}, 3000);
 
 //include from /src/
 const basic = require("./src/basic.js");
@@ -55,7 +59,7 @@ async function handleMessage(text, platformObject, args) {
 
 
 DiscordBot.on('message', async (msg) => {
-    if (new Date(msg.createdTimestamp) > startDate) {
+    if (acceptingMessages) {
         console.log("Got a discord message: " + msg.content);
         let args = msg.content.toLowerCase().split(" ");
         
@@ -80,7 +84,7 @@ DiscordBot.on('message', async (msg) => {
 });
 
 TelegramBot.on('message', async (msg) => {
-    if (new Date(msg.date * 1000) > startDate && msg.text) {
+    if (acceptingMessages && msg.text) {
         const chatId = msg.chat.id;
         console.log("Got a telegram message: " + msg.text);
         let args = msg.text.toLowerCase().split(" ");
