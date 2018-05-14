@@ -45,7 +45,7 @@ async function handle(text, platformObject, args, bots) {
         let ret = "AdamTestBot 4.0 Help\n\n";
         let prefix = platformObject.platform == "telegram" ? "/" : "=";
         ret += prefix + "ping - check if the bot is onine\n";
-        ret += prefix + "yesorno - ask the bot a yes or no question]n";
+        ret += prefix + "yesorno - ask the bot a yes or no question\n";
         ret += prefix + "snail - snail people == sneeple\n";
         ret += prefix + "quote - use alone or with a number to pull a quote\n";
         ret += prefix + "likes or " + prefix + "karma  - view your karma\n";
