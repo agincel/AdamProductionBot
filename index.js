@@ -101,7 +101,7 @@ DiscordBot.on("messageReactionAdd", async (messageReaction, user) => {
         let messageToQuote = { //emulate the telegram message structure for simplicity later on
             text: messageReaction.message.content,
             from: {
-                username: messageReaction.message.author.tag
+                username: messageReaction.message.author.username
             }
         };
         let bots = {telegram: TelegramBot, discord: DiscordBot};
