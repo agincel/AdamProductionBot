@@ -1,0 +1,1 @@
+This folder gets populated with serveridQuotes.json files. Each of those is an array of objects, each object containing quote text and author name.

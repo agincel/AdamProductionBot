@@ -22,6 +22,8 @@ setTimeout(function() {
 
 //include from /src/
 const basic = require("./src/basic.js");
+const quote = require("./src/quote.js");
+
 
 DiscordBot.on('ready', () => {
     console.log(`Discord is logged in as ${DiscordBot.user.tag}!`);
@@ -55,6 +57,7 @@ async function handleMessage(text, platformObject, args) {
 
     let bots = {telegram: TelegramBot, discord: DiscordBot};
     await basic.handle(text, platformObject, args, bots);
+    await quote.handle(text, platformObject, args, platformObject.msg.reply_to_message, bots);
 }
 
 
@@ -81,6 +84,12 @@ DiscordBot.on('message', async (msg) => {
         console.log("Skipping discord message: " + msg.content);
         return null;
     }
+});
+
+DiscordBot.on("messageReactionAdd", async (messageReaction, user) => {
+    console.log(messageReaction.emoji.name);
+    
+	//await reaction.handleReactionAdd(messageReaction, user);
 });
 
 TelegramBot.on('message', async (msg) => {
