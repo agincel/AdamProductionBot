@@ -1,2 +1,4 @@
 *Token.txt
 node_modules/
+quotes/*.json
+likes/*.json

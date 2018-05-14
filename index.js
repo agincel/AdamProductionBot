@@ -23,7 +23,7 @@ setTimeout(function() {
 //include from /src/
 const basic = require("./src/basic.js");
 const quote = require("./src/quote.js");
-
+const likes = require("./src/likes.js");
 
 DiscordBot.on('ready', () => {
     console.log(`Discord is logged in as ${DiscordBot.user.tag}!`);
@@ -58,6 +58,7 @@ async function handleMessage(text, platformObject, args) {
     let bots = {telegram: TelegramBot, discord: DiscordBot};
     await basic.handle(text, platformObject, args, bots);
     await quote.handle(text, platformObject, args, platformObject.msg.reply_to_message, bots);
+    await likes.handle(args, platformObject, platformObject.replyID ? platformObject.msg.reply_to_message.from.id.toString() : null, bots);
 }
 
 
@@ -74,6 +75,8 @@ DiscordBot.on('message', async (msg) => {
         let platformObject = {
             platform: "discord",
             msg: msg,
+            msgID: msg.id,
+            replyID: null,
             name: msg.author.username,
             userID: msg.author.id,
             server: msg.guild.id
@@ -93,6 +96,8 @@ DiscordBot.on("messageReactionAdd", async (messageReaction, user) => {
         let platformObject = {
             platform: "discord",
             msg: messageReaction.message,
+            msgID: messageReaction.message.id,
+            replyID: msgID,
             name: user.username,
             userID: user.id,
             server: messageReaction.message.guild.id
@@ -107,8 +112,35 @@ DiscordBot.on("messageReactionAdd", async (messageReaction, user) => {
         let bots = {telegram: TelegramBot, discord: DiscordBot};
 
         await quote.handle("", platformObject, ["/quoteadd"], messageToQuote, bots);
+    } else if (messageReaction.emoji.name == "👍") {
+        //a like
+        let platformObject = {
+            platform: "discord",
+            msg: messageReaction.message,
+            msgID: messageReaction.message.id,
+            replyID: msgID,
+            name: user.username,
+            userID: user.id,
+            server: messageReaction.message.guild.id
+        };
+
+        let bots = {telegram: TelegramBot, discord: DiscordBot};
+        await likes.handle(["/like"], platformObject, messageReaction.message.author.id, bots);
+    } else if (messageReaction.emoji.name == "👎") {
+        //a like
+        let platformObject = {
+            platform: "discord",
+            msg: messageReaction.message,
+            msgID: messageReaction.message.id,
+            replyID: msgID,
+            name: user.username,
+            userID: user.id,
+            server: messageReaction.message.guild.id
+        };
+
+        let bots = {telegram: TelegramBot, discord: DiscordBot};
+        await likes.handle(["/dislike"], platformObject, messageReaction.message.author.id, bots);
     }
-	
 });
 
 TelegramBot.on('message', async (msg) => {
@@ -122,8 +154,10 @@ TelegramBot.on('message', async (msg) => {
         let platformObject = {
             platform: "telegram",
             msg: msg,
+            msgID: msg.message_id.toString(),
+            replyID: msg.reply_to_message ? msg.reply_to_message.message_id.toString() : null,
             name: msg.from.username ? msg.from.username : msg.from.first_name,
-            userID: msg.from.id,
+            userID: msg.from.id.toString(),
             server: msg.chat.id.toString()
         }
 

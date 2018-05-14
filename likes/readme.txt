@@ -1,0 +1,1 @@
+This will be populated with a single likes.json, which will be a dictionary of user IDs, each mapping to a quantity of likes and dislikes.
