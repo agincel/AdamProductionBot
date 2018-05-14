@@ -1,3 +1,5 @@
+import { platform } from "os";
+
 /*
     likes.js 
 
@@ -6,6 +8,7 @@
 */  
 
 const fs = require("fs");
+const sha = require("sha1");
 const send = require("./send.js");
 
 async function handle(args, platformObject, idToVote, bots) {
@@ -21,18 +24,19 @@ async function handle(args, platformObject, idToVote, bots) {
 
 
     let likes = JSON.parse(fs.readFileSync("./likes/likes.json", 'utf8'));
-    if (args[0] == "/like" && idToVote && !likingSelf) {   
-        if (likes[idToVote] && likes[idToVote].likes.indexOf(platformObject.replyID) == -1) {
-            likes[idToVote].likes.push(platformObject.replyID);
+    let likeHash = sha(platformObject.replyID + platformObject.userID);
+    if (args[0] == "/like" && idToVote && !likingSelf) {
+        if (likes[idToVote] && likes[idToVote].likes.indexOf(likeHash) == -1) {
+            likes[idToVote].likes.push(likeHash);
         } else {
-            likes[idToVote] = {likes: [platformObject.replyID], dislikes: []};
+            likes[idToVote] = {likes: [likeHash], dislikes: []};
         }
         fs.writeFileSync("./likes/likes.json", JSON.stringify(likes), "utf8");
     } else if (args[0] == "/dislike" && idToVote && !likingSelf) {
-        if (likes[idToVote] && likes[idToVote].dislikes.indexOf(platformObject.replyID) == -1) {
-            likes[idToVote].dislikes.push(platformObject.replyID);
+        if (likes[idToVote] && likes[idToVote].dislikes.indexOf(likeHash) == -1) {
+            likes[idToVote].dislikes.push(likeHash);
         } else {
-            likes[idToVote] = {likes: [], dislikes: [platformObject.replyID]};
+            likes[idToVote] = {likes: [], dislikes: [likeHash]};
         }
         fs.writeFileSync("./likes/likes.json", JSON.stringify(likes), "utf8");
     } else if ((args[0] == "/likes" || args[0] == "/karma")) {

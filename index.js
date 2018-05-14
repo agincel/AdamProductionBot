@@ -112,7 +112,7 @@ DiscordBot.on("messageReactionAdd", async (messageReaction, user) => {
         let bots = {telegram: TelegramBot, discord: DiscordBot};
 
         await quote.handle("", platformObject, ["/quoteadd"], messageToQuote, bots);
-    } else if (messageReaction.emoji.name == "👍") {
+    } else if (messageReaction.emoji.name == "👍" || messageReaction.emoji.name == "👎") {
         //a like
         let platformObject = {
             platform: "discord",
@@ -125,21 +125,7 @@ DiscordBot.on("messageReactionAdd", async (messageReaction, user) => {
         };
 
         let bots = {telegram: TelegramBot, discord: DiscordBot};
-        await likes.handle(["/like"], platformObject, messageReaction.message.author.id, bots);
-    } else if (messageReaction.emoji.name == "👎") {
-        //a like
-        let platformObject = {
-            platform: "discord",
-            msg: messageReaction.message,
-            msgID: messageReaction.message.id,
-            replyID: messageReaction.message.id,
-            name: user.username,
-            userID: user.id,
-            server: messageReaction.message.guild.id
-        };
-
-        let bots = {telegram: TelegramBot, discord: DiscordBot};
-        await likes.handle(["/dislike"], platformObject, messageReaction.message.author.id, bots);
+        await likes.handle([messageReaction.emoji.name == "👍" ? "/like" : "/dislike"], platformObject, messageReaction.message.author.id, bots);
     }
 });
 

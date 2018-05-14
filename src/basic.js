@@ -1,3 +1,5 @@
+import { platform } from "os";
+
 /*
     basic.js 
 
@@ -40,6 +42,22 @@ async function handle(text, platformObject, args, bots) {
                 ret += "sn" + args[i] + " ";
         }
         return await sendMessage(ret);
+    }
+    else if (args[0] == "/help") {
+        let ret = "AdamTestBot 4.0 Help\n\n";
+        let prefix = platformObject.platform == "telegram" ? "/" : "=";
+        ret += prefix + "ping - check if the bot is onine\n";
+        ret += prefix + "yesorno - ask the bot a yes or no question]n";
+        ret += prefix + "snail - snail people == sneeple\n";
+        ret += prefix + "quote - use alone or with a number to pull a quote\n";
+        ret += prefix + "likes or " + prefix + "karma  - view your karma\n";
+        if (platformObject.platform == "telegram") {
+            ret += prefix + "quoteadd - reply to a message with this to add it to a quote database\n";
+            ret += prefix + "like or " + prefix + "dislike - reply to a message with these to add/subtract from a user's karma\n";
+        } else {
+            ret += "React to a recent message with 💬 and it will be added to this server's quote database\n";
+            ret += "React to a message with 👍 or 👎 to add/subtract from that user's karma\n";
+        }
     }
 }
 
