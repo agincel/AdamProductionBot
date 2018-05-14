@@ -88,8 +88,27 @@ DiscordBot.on('message', async (msg) => {
 
 DiscordBot.on("messageReactionAdd", async (messageReaction, user) => {
     console.log(messageReaction.emoji.name);
-    
-	//await reaction.handleReactionAdd(messageReaction, user);
+    if (messageReaction.emoji.name == "💬") {
+        //if reacting with :speech_balloon: add to quotes
+        let platformObject = {
+            platform: "discord",
+            msg: messageReaction.message,
+            name: user.username,
+            userID: user.id,
+            server: messageReaction.message.guild.id
+        };
+
+        let messageToQuote = { //emulate the telegram message structure for simplicity later on
+            text: messageReaction.message.content,
+            from: {
+                username: messageReaction.message.author.tag
+            }
+        };
+        let bots = {telegram: TelegramBot, discord: DiscordBot};
+
+        await quote.handle("", platformObject, ["/quoteadd"], messageToQuote, bots);
+    }
+	
 });
 
 TelegramBot.on('message', async (msg) => {
