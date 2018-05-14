@@ -56,6 +56,7 @@ async function handle(text, platformObject, args, bots) {
             ret += "React to a recent message with 💬 and it will be added to this server's quote database\n";
             ret += "React to a message with 👍 or 👎 to add/subtract from that user's karma\n";
         }
+        return await sendMessage(ret);
     }
 }
 
