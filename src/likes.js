@@ -25,7 +25,7 @@ async function handle(args, platformObject, idToVote, bots) {
         if (likes[idToVote] && likes[idToVote].likes.indexOf(platformObject.replyID) == -1) {
             likes[idToVote].likes.push(platformObject.replyID);
         } else {
-            likes[idToVote] = {likes: [platformObject.replyID, dislikes: []};
+            likes[idToVote] = {likes: [platformObject.replyID], dislikes: []};
         }
         fs.writeFileSync("./likes/likes.json", JSON.stringify(likes), "utf8");
     } else if (args[0] == "/dislike" && idToVote && !likingSelf) {
