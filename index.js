@@ -97,7 +97,7 @@ DiscordBot.on("messageReactionAdd", async (messageReaction, user) => {
             platform: "discord",
             msg: messageReaction.message,
             msgID: messageReaction.message.id,
-            replyID: msgID,
+            replyID: messageReaction.message.id,
             name: user.username,
             userID: user.id,
             server: messageReaction.message.guild.id
