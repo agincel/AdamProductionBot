@@ -79,7 +79,7 @@ DiscordBot.on('message', async (msg) => {
             replyID: null,
             name: msg.author.username,
             userID: msg.author.id,
-            server: msg.guild.id
+            server: msg.guild ? msg.guild.id : msg.author.id
         }
         
         return await handleMessage(msg.content, platformObject, args);
@@ -100,7 +100,7 @@ DiscordBot.on("messageReactionAdd", async (messageReaction, user) => {
             replyID: messageReaction.message.id,
             name: user.username,
             userID: user.id,
-            server: messageReaction.message.guild.id
+            server: messageReaction.message.guild ? messageReaction.message.guild.id : messageReaction.message.author.id
         };
 
         let messageToQuote = { //emulate the telegram message structure for simplicity later on
