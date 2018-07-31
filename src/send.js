@@ -23,5 +23,10 @@ async function genericEditMessage(text, platformObject, bots, msg) {
     }
 }
 
+async function telegramSendServer(text, serverID, bots) {
+	return await bots.telegram.sendMessage(parseInt(serverID), text, {parse_mode: "Markdown"});
+}
+
 module.exports.genericSendMessage = genericSendMessage;
 module.exports.genericEditMessage = genericEditMessage;
+module.exports.telegramSendServer = telegramSendServer;

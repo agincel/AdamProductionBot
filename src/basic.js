@@ -6,6 +6,7 @@
 */  
 
 const send = require("./send.js");
+const fs = require("fs");
 
 async function handle(text, platformObject, args, bots) {
     async function sendMessage (text) {
@@ -41,6 +42,16 @@ async function handle(text, platformObject, args, bots) {
         }
         return await sendMessage(ret);
     }
+    else if (args[0] == "/broadcast") {
+	if (platformObject.name == "AdamZG") {
+		let servers = JSON.parse(fs.readFileSync("./telegramChats.json", "utf8"));
+		let s = text.substring(args[0].length + 1);
+		for (let i = 0; i < servers.length; i++) {
+			await send.telegramSendServer(s, servers[i], bots)
+		}
+		return await sendMessage("Broadcast sent.");
+	}
+    }
     else if (args[0] == "/help") {
         let ret = "AdamTestBot 4.0 Help\n\n";
         let prefix = platformObject.platform == "telegram" ? "/" : "=";
@@ -49,6 +60,9 @@ async function handle(text, platformObject, args, bots) {
         ret += prefix + "snail - snail people == sneeple\n";
         ret += prefix + "quote - use alone or with a number to pull a quote\n";
         ret += prefix + "likes or " + prefix + "karma  - view your karma\n";
+	ret += prefix + "blaze - use at 4:20 for up to six points.\n";
+	ret += prefix + "blazetime - use to learn what time I think it is.\n";
+	ret += prefix + "leaderboard - see the blaze leaderboard!\n";
         if (platformObject.platform == "telegram") {
             ret += prefix + "quoteadd - reply to a message with this to add it to a quote database\n";
             ret += prefix + "like or " + prefix + "dislike - reply to a message with these to add/subtract from a user's karma\n";

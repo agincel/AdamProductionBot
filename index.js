@@ -14,6 +14,13 @@ const DiscordBot = new Discord.Client();
 const discordToken = fs.readFileSync("./discordToken.txt", "utf8").replace("\n", "");
 DiscordBot.login(discordToken);
 
+if (!fs.existsSync("./telegramChats.json"))
+	fs.writeFileSync("./telegramChats.json", "[]", "utf8");
+let telegramChats = JSON.parse(fs.readFileSync("./telegramChats.json", "utf8"));
+
+
+
+
 let acceptingMessages = false;
 setTimeout(function() {
 	acceptingMessages = true;
@@ -24,6 +31,7 @@ setTimeout(function() {
 const basic = require("./src/basic.js");
 const quote = require("./src/quote.js");
 const likes = require("./src/likes.js");
+const blaze = require("./src/blaze.js");
 
 DiscordBot.on('ready', () => {
     console.log(`Discord is logged in as ${DiscordBot.user.tag}!`);
@@ -59,6 +67,7 @@ async function handleMessage(text, platformObject, args) {
     await basic.handle(text, platformObject, args, bots);
     await quote.handle(text, platformObject, args, platformObject.msg.reply_to_message, bots);
     await likes.handle(args, platformObject, platformObject.replyID ? platformObject.msg.reply_to_message.from.id.toString() : null, bots);
+    await blaze.handle(text, platformObject, args, bots);
 }
 
 
@@ -142,10 +151,15 @@ TelegramBot.on('message', async (msg) => {
             msg: msg,
             msgID: msg.message_id.toString(),
             replyID: msg.reply_to_message ? msg.reply_to_message.message_id.toString() : null,
-            name: msg.from.username ? msg.from.username : msg.from.first_name,
+            name: msg.from.username ? msg.from.username : msg.from.first_name + (msg.from.last_name ? " " + msg.from.last_name : ""),
             userID: msg.from.id.toString(),
             server: msg.chat.id.toString()
         }
+
+	if (telegramChats.indexOf(platformObject.server) == -1) {
+		telegramChats.push(platformObject.server);
+		fs.writeFileSync("./telegramChats.json", JSON.stringify(telegramChats), "utf8");
+	}
 
         return await handleMessage(msg.text, platformObject, args);
     } else if (msg.text) {
