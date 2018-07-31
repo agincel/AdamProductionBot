@@ -1,5 +1,6 @@
 *Token.txt
 node_modules/
 quotes/*.json
+quotes/*
 likes/*.json
 blaze.json
