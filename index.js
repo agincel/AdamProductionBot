@@ -18,7 +18,7 @@ if (!fs.existsSync("./telegramChats.json"))
 	fs.writeFileSync("./telegramChats.json", "[]", "utf8");
 let telegramChats = JSON.parse(fs.readFileSync("./telegramChats.json", "utf8"));
 
-
+const timeZoneOffset = 3600000 * -4; //change for daylight savings time, right now UTC-4
 
 
 let acceptingMessages = false;
@@ -73,7 +73,7 @@ async function handleMessage(text, platformObject, args) {
 
 DiscordBot.on('message', async (msg) => {
     if (acceptingMessages) {
-        console.log("Got a discord message: " + msg.content);
+        console.log("Discord from " + msg.author.username + ": " + msg.content);
         let args = msg.content.toLowerCase().split(" ");
         
         if (args[0][0] == "=") 
@@ -88,9 +88,10 @@ DiscordBot.on('message', async (msg) => {
             replyID: null,
             name: msg.author.username,
             userID: msg.author.id,
-            server: msg.guild ? msg.guild.id : msg.author.id
+            server: msg.guild ? msg.guild.id : msg.author.id,
+	    time: msg.createdTimestamp + timeZoneOffset
         }
-        
+ 	//console.log(new Date(platformObject.time));       
         return await handleMessage(msg.content, platformObject, args);
     } else {
         console.log("Skipping discord message: " + msg.content);
@@ -141,7 +142,7 @@ DiscordBot.on("messageReactionAdd", async (messageReaction, user) => {
 TelegramBot.on('message', async (msg) => {
     if (acceptingMessages && msg.text) {
         const chatId = msg.chat.id;
-        console.log("Got a telegram message: " + msg.text);
+        console.log("Telegram from " + msg.from.first_name + " (" + (msg.from.username ? msg.from.username : msg.from.last_name ? msg.from.last_name : "") + "): " + msg.text);
         let args = msg.text.toLowerCase().split(" ");
         if (args[0].indexOf("@") > -1) 
             args[0] = args[0].split("@")[0]; //change /command@BotUserName to /command, really should check for equality with username
@@ -153,8 +154,10 @@ TelegramBot.on('message', async (msg) => {
             replyID: msg.reply_to_message ? msg.reply_to_message.message_id.toString() : null,
             name: msg.from.username ? msg.from.username : msg.from.first_name + (msg.from.last_name ? " " + msg.from.last_name : ""),
             userID: msg.from.id.toString(),
-            server: msg.chat.id.toString()
+            server: msg.chat.id.toString(),
+	    time: (msg.date * 1000) + timeZoneOffset
         }
+	//console.log(new Date(platformObject.time));
 
 	if (telegramChats.indexOf(platformObject.server) == -1) {
 		telegramChats.push(platformObject.server);

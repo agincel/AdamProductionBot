@@ -21,7 +21,7 @@ async function handle(text, platformObject, args, bots) {
         return await send.genericEditMessage(text, platformObject, bots, msg);
     }
 
-    let currentDate = new Date();
+    let currentDate = new Date(platformObject.time);
     if (!fs.existsSync("./blaze.json")) {
 	fs.writeFileSync("./blaze.json", "{}", "utf8");
     }
