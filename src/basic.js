@@ -51,7 +51,7 @@ async function handle(text, platformObject, args, bots) {
             let results = [];
             let total = 0;
             for (let i = 0; i < Math.abs(quantity); i++) {
-                let roll = (Math.random() * diceSize) + 1;
+                let roll = Math.floor(Math.random() * diceSize) + 1;
                 total += roll;
                 results.push(roll);
             }
