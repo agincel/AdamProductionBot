@@ -56,8 +56,9 @@ async function handle(text, platformObject, args, bots) {
                 results.push(roll);
             }
             let ret = "Rolling " + quantity.toString() + "d" + diceSize.toString() + (quantity == 1 ? "" : "s") + ":\n";
+            let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             for (let i = 0; i < results.length; i++) {
-                ret += "Die " + (i + 1).toString() + ": " + results[i].toString() + "\n";
+                ret += "Die " + alphabet[Math.floor(Math.random() * alphabet.length)] + ": " + results[i].toString() + "\n";
             }
             ret += "-----\n";
             ret += "Total: " + total.toString();
