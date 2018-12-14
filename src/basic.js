@@ -50,7 +50,7 @@ async function handle(text, platformObject, args, bots) {
             let diceSize = parseInt(args[1].split("d")[1]);
             if (quantity == NaN || diceSize == NaN)
                 return await sendMessage("Invalid dice quantity or size.");
-                
+
             let results = [];
             let total = 0;
             for (let i = 0; i < Math.abs(quantity); i++) {
@@ -60,7 +60,7 @@ async function handle(text, platformObject, args, bots) {
             }
             let ret = "```\nRolling " + quantity.toString() + "d" + diceSize.toString() + (quantity == 1 ? "" : "s") + ":\n";
             let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            for (let i = 0; i < results.length; i++) {
+            for (let i = 0; i < results.length && results.length < 120; i++) {
                 ret += "Die " + alphabet[Math.floor(Math.random() * alphabet.length)] + ": " + results[i].toString() + "\n";
             }
             ret += "-----\n";
