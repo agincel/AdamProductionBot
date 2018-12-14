@@ -41,16 +41,41 @@ async function handle(text, platformObject, args, bots) {
                 ret += "sn" + args[i] + " ";
         }
         return await sendMessage(ret);
+    } else if (args[0] == "/roll") {
+        if (args.length <= 1 || args[1].indexOf("d") < 0) {
+            return await sendMessage("Usage: `/roll XdY`, for example: `/roll 2d20`");
+        }
+        try {
+            let quantity = parseInt(args[1].split("d")[0]);
+            let diceSize = parseInt(args[1].split("d")[1]);
+            let results = [];
+            let total = 0;
+            for (let i = 0; i < Math.abs(quantity); i++) {
+                let roll = (Math.random() * diceSize) + 1;
+                total += roll;
+                results.push(roll);
+            }
+            let ret = "Rolling " + quantity.toString() + "d" + diceSize.toString() + (quantity == 1 ? "" : "s") + ":\n";
+            for (let i = 0; i < results.length; i++) {
+                ret += "Die " + (i + 1).toString() + ": " + results[i].toString() + "\n";
+            }
+            ret += "-----\n";
+            ret += "Total: " + total.toString();
+            return await sendMessage(ret);
+        } catch (e) {
+            console.log(e);
+            return await sendMessage("There was an error. Unless you gave me some weird input, you should let Adam know.");
+        }
     }
     else if (args[0] == "/broadcast") {
-	if (platformObject.name == "AdamZG") {
-		let servers = JSON.parse(fs.readFileSync("./telegramChats.json", "utf8"));
-		let s = text.substring(args[0].length + 1);
-		for (let i = 0; i < servers.length; i++) {
-			await send.telegramSendServer(s, servers[i], bots)
-		}
-		return await sendMessage("Broadcast sent.");
-	}
+        if (platformObject.name == "AdamZG") {
+            let servers = JSON.parse(fs.readFileSync("./telegramChats.json", "utf8"));
+            let s = text.substring(args[0].length + 1);
+            for (let i = 0; i < servers.length; i++) {
+                await send.telegramSendServer(s, servers[i], bots)
+            }
+            return await sendMessage("Broadcast sent.");
+        }
     }
     else if (args[0] == "/help") {
         let ret = "AdamTestBot 4.0 Help\n\n";
