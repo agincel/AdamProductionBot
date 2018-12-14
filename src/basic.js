@@ -55,13 +55,13 @@ async function handle(text, platformObject, args, bots) {
                 total += roll;
                 results.push(roll);
             }
-            let ret = "```Rolling " + quantity.toString() + "d" + diceSize.toString() + (quantity == 1 ? "" : "s") + ":\n";
+            let ret = "```\nRolling " + quantity.toString() + "d" + diceSize.toString() + (quantity == 1 ? "" : "s") + ":\n";
             let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             for (let i = 0; i < results.length; i++) {
                 ret += "Die " + alphabet[Math.floor(Math.random() * alphabet.length)] + ": " + results[i].toString() + "\n";
             }
             ret += "-----\n";
-            ret += "Total: " + total.toString() + "```";
+            ret += "Total: " + total.toString() + "\n```";
             return await sendMessage(ret);
         } catch (e) {
             console.log(e);
