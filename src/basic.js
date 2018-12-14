@@ -48,6 +48,9 @@ async function handle(text, platformObject, args, bots) {
         try {
             let quantity = parseInt(args[1].split("d")[0]);
             let diceSize = parseInt(args[1].split("d")[1]);
+            if (quantity == NaN || diceSize == NaN)
+                return await sendMessage("Invalid dice quantity or size.");
+                
             let results = [];
             let total = 0;
             for (let i = 0; i < Math.abs(quantity); i++) {
