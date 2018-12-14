@@ -70,6 +70,33 @@ async function handle(text, platformObject, args, bots) {
             console.log(e);
             return await sendMessage("There was an error. Unless you gave me some weird input, you should let Adam know.");
         }
+    } else if (args[0] == "/8ball") {
+        let replies = [
+            "👀",
+            "❤",
+            "🤔",
+            "🤔🤔🤔🤔🤔",
+            "👍",
+            "👌",
+            "🔥",
+            "🙌",
+            "🤣",
+            "👏",
+            "🤢",
+            "🤐",
+            "😥",
+            "😠",
+            "😰",
+            "😇",
+            "🤨",
+            "🙃",
+            "🎉🎉🎉",
+            "🎲",
+            "🍆🍆🍆🍆",
+            "💔💔💔💔💔",
+            "🏃‍💨"
+        ];
+        return await sendMessage(replies[Math.floor(Math.random() * replies.length)]);
     }
     else if (args[0] == "/broadcast") {
         if (platformObject.name == "AdamZG") {
