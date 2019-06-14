@@ -26,6 +26,9 @@ async function handle(text, platformObject, args, bots) {
         else
             return await sendMessage("No.");
     }
+    else if (args[0] == "/tgid") {
+	return await sendMessage(platformObject.server);
+    }
     else if (args[0] == "/snail" && args.length > 1) {
         let ret = "";
         for (let i = 1; i < args.length; i++) {
@@ -48,6 +51,12 @@ async function handle(text, platformObject, args, bots) {
         try {
             let quantity = parseInt(args[1].split("d")[0]);
             let diceSize = parseInt(args[1].split("d")[1]);
+	    let modifier = 0;
+	    if (args.length > 1) {
+		modifier = parseInt(args[2]);
+		if (modifier.toString() == "NaN")
+		    modifier = 0;
+	    }
             if (quantity == NaN || diceSize == NaN)
                 return await sendMessage("Invalid dice quantity or size.");
 
@@ -64,7 +73,15 @@ async function handle(text, platformObject, args, bots) {
                 ret += "Die " + alphabet[Math.floor(Math.random() * alphabet.length)] + ": " + results[i].toString() + "\n";
             }
             ret += "-----\n";
-            ret += "Total: " + total.toString() + "\n```";
+            ret += "Total: " + total.toString();
+	    total += modifier;
+	    if (modifier > 0) {
+		ret += "\n-----\n+" + modifier.toString() + " = " + total.toString();
+	    } else if (modifier < 0) {
+		ret += "\n-----\n" + modifier.toString() + " = " + total.toString();
+	    }
+
+	    ret += "\n```";
             return await sendMessage(ret);
         } catch (e) {
             console.log(e);

@@ -11,7 +11,7 @@ const fs = require("fs");
 const am = 4;
 const pm = am + 12;
 const minute = 20;
-const utcOffset = 0;
+const utcOffset = -4;
 
 async function handle(text, platformObject, args, bots) {
     async function sendMessage (text) {
@@ -22,6 +22,7 @@ async function handle(text, platformObject, args, bots) {
     }
 
     let currentDate = new Date(platformObject.time);
+    //console.log(currentDate);
     if (!fs.existsSync("./blaze.json")) {
 	fs.writeFileSync("./blaze.json", "{}", "utf8");
     }
@@ -33,7 +34,11 @@ async function handle(text, platformObject, args, bots) {
     };
 
     if (args[0] == "/blaze") {
-	let h = currentDate.getHours() + utcOffset;
+	let h = currentDate.getHours();
+	console.log(h);
+	console.log(pm);
+	console.log(minute);
+	console.log(currentDate.getMinutes());
 	if (currentDate.getMinutes() == minute && (h == am || h == pm)) {
 		if (!blaze[u.id])
 			blaze[u.id] = {name: u.name, score: 0, lastDate: ""};
@@ -63,7 +68,9 @@ async function handle(text, platformObject, args, bots) {
 	let entries = [];
 	for (let i = 0; i < k.length; i++)
 		entries.push(blaze[k[i]]);
-	entries.sort((a, b) => a.score < b.score);
+	entries.sort(function(a, b) {
+		return parseInt(b.score) - parseInt(a.score);
+	});
 	let s = "Blaze Leaderboard:\n";
 	for (let i = 0; i < entries.length; i++) {
 		s += "`" + entries[i].name + ": " + entries[i].score.toString() + "`\n";

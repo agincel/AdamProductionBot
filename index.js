@@ -18,7 +18,7 @@ if (!fs.existsSync("./telegramChats.json"))
 	fs.writeFileSync("./telegramChats.json", "[]", "utf8");
 let telegramChats = JSON.parse(fs.readFileSync("./telegramChats.json", "utf8"));
 
-const timeZoneOffset = 3600000 * -4; //change for daylight savings time, right now UTC-4
+const timeZoneOffset = 0; //change for daylight savings time, right now UTC-4
 
 
 let acceptingMessages = false;
