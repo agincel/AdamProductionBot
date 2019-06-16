@@ -82,8 +82,8 @@ DiscordBot.on('message', async (msg) => {
             args[0] = args[0].split("/")[1]; //remove a prefix / if they typed it for something else, effectively disabling / notation on discord as intended
 
         let mentions = [];
-        let arr = msg.mentions.users.array();
-        for (let i = 0; i < arr.length; i++) {
+        let arr = msg.mentions && msg.mentions.users && msg.mentions.users.array();
+        for (let i = 0; arr && i < arr.length; i++) {
             let u = arr[i];
             mentions.push({
                 "id": u.id,
@@ -159,7 +159,7 @@ TelegramBot.on('message', async (msg) => {
             args[0] = args[0].split("@")[0]; //change /command@BotUserName to /command, really should check for equality with username
         
         let mentions = [];
-        for (let i = 0; i < msg.entities.length; i++) {
+        for (let i = 0; msg.entities && i < msg.entities.length; i++) {
             if (msg.entities[i].user) {
                 let u = msg.entities[i].user;
                 mentions.push({
