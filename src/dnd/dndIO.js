@@ -1,0 +1,305 @@
+/*
+    dndIO.js
+
+    Includes all File I/O for the bot's DnD module.
+    (C) Adam Gincel - 2019
+*/
+
+const fs = require("fs");
+
+
+const userPath = "./dnd/users/";
+const groupPath = "./dnd/groups/";
+const schemaPath = "./dnd/schemas/";
+
+let users = {};
+let groups = {};
+
+function load() {
+    loadUsers();
+    loadGroups();
+}
+
+function loadUsers() {
+    let userFilenames = fs.readdirSync(userPath);
+    for (let i = 0; i < userFilenames.length; i++) {
+        if (userFilenames[i] != "schema.json") {
+            let user = getUser(userFilenames[i].split(".json")[0], ""); //JSON.parse(fs.readFileSync(dataPath + userFilenames[i], "utf8"));
+            users[user.id] = user;
+        }
+    }
+    console.log("Loaded users into RAM");
+}
+
+function getUserPath(id) {
+    return userPath + id + ".json";
+}
+
+//Overwrite a stored user with the given modified user object
+function writeUser(id, user) {
+    let userPath = getUserPath(id);
+    try {
+        fs.writeFileSync(userPath, JSON.stringify(user, "", "\t"), "utf8");
+        users[id] = user;
+        return true;
+    } catch (e) {
+        console.log(e);
+        return false;
+    }
+}
+
+//Creates user from template schema.json file, overwrites `id` and `username`, then writes that user to memory and to cache.
+function createUser(id, username) {
+    let templateUser = JSON.parse(fs.readFileSync(schemaPath + "user.json", "utf8"));
+    templateUser.id = id;
+    if (username)
+        templateUser.username = username;
+    writeUser(id, templateUser);
+}
+
+/*
+    Returns user by ID.
+    Creates user if not found.
+    Updates username each time called.
+    Caches user in RAM users.
+*/
+function getUser(id, username) {
+    let userPath = getUserPath(id);
+    if (!fs.existsSync(userPath)) {
+        //if we don't have a user by this ID, create them!
+        createUser(id, username);
+    }
+    
+    //pull user from cached users
+    //if not found, read them from file, then cache them
+    let userData = users[id];
+    if (!userData) {
+        userData = JSON.parse(fs.readFileSync(userPath, "utf8"));
+        users[id] = userData;
+    }
+
+    //set or update username, if applicable
+    if (username && (!userData.username || userData.username != username)) {
+        userData.username = username;
+        writeUser(id, userData);
+    }
+
+    //any new fields not from original schema to add to all objects
+    /*if (userData.newField == undefined) {
+        userData.newField = 0;
+        writeUser(id, userData);
+    }*/
+
+    return userData;
+}
+
+function writeCharacter(id, character) {
+    let user = getUser(id, null);
+    user.characters[user.activeCharacter] = character;
+    writeUser(id, user);
+}
+
+function writeEnemy(id, ind, enemy) {
+    let user = getUser(id, null);
+    user.enemies[ind] = enemy;
+    writeUser(id, user);
+}
+
+function getCharacter(id) {
+    let user = getUser(id, null);
+    if (user.activeCharacter >= 0 && user.characters[user.activeCharacter]) {
+        return user.characters[user.activeCharacter];
+    }
+    return null;
+}
+
+function getEnemy(id, ind) {
+    let user = getUser(id, null);
+    if (user.enemies[ind]) {
+        return user.enemies[ind];
+    }
+    return null;
+}
+
+function getChosenStat(statName) {
+    let stats = ["hp", "currentHp", "ac", "strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"];
+    let chosenStat = "";
+    for (let i = 0; i < stats.length; i++) {
+        if (statName.length >= 3 && stats[i].toLowerCase().startsWith(statName.toLowerCase())) {
+            chosenStat = stats[i];
+            break;
+        }
+    }
+
+    return chosenStat;
+}
+
+function setCharacterStat(id, statName, value) {
+    let character = getCharacter(id);
+    if (!character) {
+        return false;
+    }
+    
+    let chosenStat = getChosenStat(statName);
+
+    if (!chosenStat)
+        return false;
+    
+    character.stats[chosenStat] = value;
+    writeCharacter(id, character);
+    return true;
+}
+
+function setEnemyStat(id, ind, statName, value) {
+    let enemy = getEnemy(id, ind);
+    if (!enemy) {
+        return false;
+    }
+    
+    let chosenStat = getChosenStat(statName);
+
+    if (!chosenStat)
+        return false;
+    
+    enemy.stats[chosenStat] = value;
+    writeEnemy(id, ind, enemy);
+    return true;
+}
+
+function setCharacterTrait(id, fieldName, value) {
+    let character = getCharacter(id);
+    if (!character) {
+        return false;
+    }
+
+    character[fieldName.toLowerCase()] = value;
+
+    writeCharacter(id, character);
+    return true;
+}
+
+function setEnemyTrait(id, ind, fieldName, value) {
+    let enemy = getEnemy(id, ind);
+    if (!enemy) {
+        return false;
+    }
+
+    enemy[fieldName.toLowerCase()] = value;
+
+    writeEnemy(id, ind, enemy);
+    return true;
+}
+
+function addCharacterList(id, listName, valueToAdd) {
+    let character = getCharacter(id);
+    if (!character) {
+        return false;
+    }
+
+    character[listName].push(valueToAdd);
+
+    writeCharacter(id, character);
+    return true;
+}
+
+function addEnemyList(id, ind, listName, valueToAdd) {
+    let enemy = getEnemy(id, ind);
+    if (!enemy) {
+        return false;
+    }
+
+    enemy[listName.toLowerCase()].push(valueToAdd);
+
+    writeEnemy(id, ind, enemy);
+    return true;
+}
+
+//-------------------------------
+
+function loadGroups() {
+    let groupFilenames = fs.readdirSync(groupPath);
+    for (let i = 0; i < groupFilenames.length; i++) {
+        if (groupFilenames[i] != "schema.json") {
+            let group = getGroup(groupFilenames[i].split(".json")[0]); //JSON.parse(fs.readFileSync(dataPath + userFilenames[i], "utf8"));
+            groups[group.id] = group;
+        }
+    }
+    console.log("Loaded groups into RAM");
+}
+
+function getGroupPath(id) {
+    return groupPath + id + ".json";
+}
+
+//Overwrite a stored group with the given modified group object
+function writeGroup(id, group) {
+    let groupPath = getGroupPath(id);
+    try {
+        fs.writeFileSync(groupPath, JSON.stringify(group, "", "\t"), "utf8");
+        groups[id] = group;
+        return true;
+    } catch (e) {
+        console.log(e);
+        return false;
+    }
+}
+
+//Creates group from template schema.json file, overwrites `id`, then writes that group to memory and to cache.
+function createGroup(id) {
+    let templateGroup = JSON.parse(fs.readFileSync(schemaPath + "group.json", "utf8"));
+    templateGroup.id = id;
+    writeGroup(id, templateGroup);
+}
+
+/*
+    Returns group by ID.
+    Creates group if not found.
+    Updates groupname each time called.
+    Caches group in RAM groups.
+*/
+function getGroup(id) {
+    let groupPath = getGroupPath(id);
+    if (!fs.existsSync(groupPath)) {
+        //if we don't have a group by this ID, create them!
+        createGroup(id);
+    }
+    
+    //pull group from cached groups
+    //if not found, read them from file, then cache them
+    let groupData = groups[id];
+    if (!groupData) {
+        groupData = JSON.parse(fs.readFileSync(groupPath, "utf8"));
+        groups[id] = groupData;
+    }
+
+    //set or update groupname, if applicable
+    if (groupname && (!groupData.groupname || groupData.groupname != groupname)) {
+        groupData.groupname = groupname;
+        writeGroup(id, groupData);
+    }
+
+    //any new fields not from original schema to add to all objects
+    /*if (groupData.newField == undefined) {
+        groupData.newField = 0;
+        writeGroup(id, groupData);
+    }*/
+
+    return groupData;
+}
+
+
+module.exports.load = load;
+module.exports.getUser = getUser;
+module.exports.getGroup = getGroup;
+module.exports.writeUser = writeUser;
+module.exports.writeGroup = writeGroup;
+module.exports.createUser = createUser;
+module.exports.createGroup = createGroup;
+
+module.exports.getCharacter = getCharacter;
+module.exports.getEnemy = getEnemy;
+module.exports.setCharacterStat = setCharacterStat;
+module.exports.setEnemyStat = setEnemyStat;
+module.exports.setCharacterTrait = setCharacterTrait;
+module.exports.addCharacterList = addCharacterList;
+module.exports.addEnemyList = addEnemyList;

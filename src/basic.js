@@ -27,7 +27,7 @@ async function handle(text, platformObject, args, bots) {
             return await sendMessage("No.");
     }
     else if (args[0] == "/tgid") {
-	return await sendMessage(platformObject.server);
+	    return await sendMessage(platformObject.server);
     }
     else if (args[0] == "/snail" && args.length > 1) {
         let ret = "";
@@ -51,12 +51,12 @@ async function handle(text, platformObject, args, bots) {
         try {
             let quantity = parseInt(args[1].split("d")[0]);
             let diceSize = parseInt(args[1].split("d")[1]);
-	    let modifier = 0;
-	    if (args.length > 1) {
-		modifier = parseInt(args[2]);
-		if (modifier.toString() == "NaN")
-		    modifier = 0;
-	    }
+            let modifier = 0;
+            if (args.length > 1) {
+                modifier = parseInt(args[2]);
+            if (modifier.toString() == "NaN")
+                modifier = 0;
+            }
             if (quantity == NaN || diceSize == NaN)
                 return await sendMessage("Invalid dice quantity or size.");
 
@@ -74,14 +74,14 @@ async function handle(text, platformObject, args, bots) {
             }
             ret += "-----\n";
             ret += "Total: " + total.toString();
-	    total += modifier;
-	    if (modifier > 0) {
-		ret += "\n-----\n+" + modifier.toString() + " = " + total.toString();
-	    } else if (modifier < 0) {
-		ret += "\n-----\n" + modifier.toString() + " = " + total.toString();
-	    }
+            total += modifier;
+            if (modifier > 0) {
+                ret += "\n-----\n+" + modifier.toString() + " = " + total.toString();
+            } else if (modifier < 0) {
+                ret += "\n-----\n" + modifier.toString() + " = " + total.toString();
+            }
 
-	    ret += "\n```";
+	        ret += "\n```";
             return await sendMessage(ret);
         } catch (e) {
             console.log(e);
@@ -133,9 +133,9 @@ async function handle(text, platformObject, args, bots) {
         ret += prefix + "snail - snail people == sneeple\n";
         ret += prefix + "quote - use alone or with a number to pull a quote\n";
         ret += prefix + "likes or " + prefix + "karma  - view your karma\n";
-	ret += prefix + "blaze - use at 4:20 for up to six points.\n";
-	ret += prefix + "blazetime - use to learn what time I think it is.\n";
-	ret += prefix + "leaderboard - see the blaze leaderboard!\n";
+	    ret += prefix + "blaze - use at 4:20 for up to six points.\n";
+	    ret += prefix + "blazetime - use to learn what time I think it is.\n";
+	    ret += prefix + "leaderboard - see the blaze leaderboard!\n";
         if (platformObject.platform == "telegram") {
             ret += prefix + "quoteadd - reply to a message with this to add it to a quote database\n";
             ret += prefix + "like or " + prefix + "dislike - reply to a message with these to add/subtract from a user's karma\n";

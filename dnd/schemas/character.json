@@ -1,0 +1,20 @@
+{
+    "name": "Alyst",
+    "class": "Paladin",
+    "level": 1,
+    "stats": {
+        "hp": 20,
+        "currenthp": 20,
+        "ac": 12,
+        "strength": 10,
+        "dexterity": 10,
+        "constitution": 10,
+        "intelligence": 10,
+        "wisdom": 10,
+        "charisma": 10
+    },
+    "traits": [],
+    "spells": [],
+    "equipment": [],
+    "inventory": []
+}

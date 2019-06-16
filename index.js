@@ -81,6 +81,16 @@ DiscordBot.on('message', async (msg) => {
         else if (args[0][0] == "/")
             args[0] = args[0].split("/")[1]; //remove a prefix / if they typed it for something else, effectively disabling / notation on discord as intended
 
+        let mentions = [];
+        let arr = msg.mentions.users.array();
+        for (let i = 0; i < arr.length; i++) {
+            let u = arr[i];
+            mentions.push({
+                "id": u.id,
+                "username": u.username
+            });
+        }
+
         let platformObject = {
             platform: "discord",
             msg: msg,
@@ -89,9 +99,10 @@ DiscordBot.on('message', async (msg) => {
             name: msg.author.username,
             userID: msg.author.id,
             server: msg.guild ? msg.guild.id : msg.author.id,
-	    time: msg.createdTimestamp + timeZoneOffset
+            time: msg.createdTimestamp + timeZoneOffset,
+            mentions: mentions
         }
- 	//console.log(new Date(platformObject.time));       
+ 	    //console.log(new Date(platformObject.time));       
         return await handleMessage(msg.content, platformObject, args);
     } else {
         console.log("Skipping discord message: " + msg.content);
@@ -147,6 +158,16 @@ TelegramBot.on('message', async (msg) => {
         if (args[0].indexOf("@") > -1) 
             args[0] = args[0].split("@")[0]; //change /command@BotUserName to /command, really should check for equality with username
         
+        let mentions = [];
+        for (let i = 0; i < msg.entities.length; i++) {
+            if (msg.entities[i].user) {
+                let u = msg.entities[i].user;
+                mentions.push({
+                    "id": u.id,
+                    "username": u.username ? u.username : u.first_name + (u.last_name ? " " + u.last_name : "")
+                });
+            }
+        }
         let platformObject = {
             platform: "telegram",
             msg: msg,
@@ -155,9 +176,11 @@ TelegramBot.on('message', async (msg) => {
             name: msg.from.username ? msg.from.username : msg.from.first_name + (msg.from.last_name ? " " + msg.from.last_name : ""),
             userID: msg.from.id.toString(),
             server: msg.chat.id.toString(),
-	    time: (msg.date * 1000) + timeZoneOffset
+            time: (msg.date * 1000) + timeZoneOffset,
+            mentions: mentions
         }
-	//console.log(new Date(platformObject.time));
+        console.log(args);
+        console.log(mentions);
 
 	if (telegramChats.indexOf(platformObject.server) == -1) {
 		telegramChats.push(platformObject.server);
