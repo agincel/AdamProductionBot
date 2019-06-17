@@ -81,7 +81,7 @@ async function handle(text, platformObject, args, bots) {
         return await send.genericEditMessage(text, platformObject, bots, msg);
     }
     let prefix = platformObject.platform == "telegram" ? "/" : "=";
-    let group = dndIO.getGroup(platform.server);
+    let group = dndIO.getGroup(platformObject.server);
     let user = dndIO.getUser(platformObject.userID, platformObject.name);
     let character = dndIO.getCharacter(user.id);
 
