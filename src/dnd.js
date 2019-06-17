@@ -219,7 +219,7 @@ async function handle(text, platformObject, args, bots) {
         if (args.length < 2) {
             return await sendMessage("USAGE: `" + args[0] + " value` - Sets the specified character trait to the given value.");
         }
-        let value = text.substring("/newcharacter ".length, text.length);
+        let value = text.substring(args[0].length + 1, text.length);
 
         let result = dndIO.setCharacterTrait(user.id, args[0].substring(1), value);
         
