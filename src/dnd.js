@@ -219,10 +219,12 @@ async function handle(text, platformObject, args, bots) {
         if (args.length < 2) {
             return await sendMessage("USAGE: `" + args[0] + " value` - Sets the specified character trait to the given value.");
         }
-        let result = dndIO.setCharacterTrait(user.id, args[0].substring(1), args[1]);
+        let value = text.substring("/newcharacter ".length, text.length);
+
+        let result = dndIO.setCharacterTrait(user.id, args[0].substring(1), value);
         
         if (result) {
-            return await sendMessage(`Set ${character.name}'s ${args[0].substring(1)} to \`${args[1]}\``);
+            return await sendMessage(`Set ${character.name}'s ${args[0].substring(1)} to \`${value}\``);
         } else {
             return await sendMessage(`There was an issue. Please contact the developer.`);
         }
