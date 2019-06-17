@@ -20,6 +20,8 @@ function getHelp(prefix) {
     s += prefix + "sheet or " + prefix + "info - Read stats and info about the active character.\n";
     s += prefix + "newcharacter Name - Creates a new character with the given name.\n";
     s += prefix + "setup - Commands to help set or change your character's stats, traits, spells, equipment, etc.\n";
+
+    return s;
 }
 
 function getSetup(prefix) {
@@ -45,6 +47,8 @@ function getSetup(prefix) {
     s += prefix + "removeSpell - removes the specified spell from the spell list.\n";
     s += prefix + "removeEquipment - removes the specified equipment from the equipment list.\n";
     s += prefix + "removeItem - removes the specified item from the item list.\n";
+
+    return s;
 }
 
 function getEnemySetup(prefix) {
@@ -64,6 +68,8 @@ function getEnemySetup(prefix) {
     s += prefix + "enemycha 0 16 - set the Active Character's Charisma stat.\n";
     s += prefix + "enemyaddItem - adds an item to the character's inventory list.\n";
     s += prefix + "removeItem - removes the specified item from the item list.\n";
+
+    return s;
 }
 
 function getDmHelp(prefix) {
@@ -71,6 +77,8 @@ function getDmHelp(prefix) {
 
     s += prefix + "spawn 0 - Would spawn Enemy 0 from your enemies list. Enemies can be targeted by players.";
     s += prefix + "pay @user X - Would add X money to the character used by the tagged user.";
+
+    return s;
 }
 
 async function handle(text, platformObject, args, bots) {
