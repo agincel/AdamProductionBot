@@ -226,7 +226,7 @@ async function handle(text, platformObject, args, bots) {
         } else {
             return await sendMessage(`There was an issue. Please contact the developer.`);
         }
-    } else if (["/hp", "currenthp", "/ac", "/str", "/strength", "/dex", "/dexterity", "/con", "/cons", "/constitution", "/int", "intelligence", "/wis", "/wisdom", "/cha", "/charisma"].indexOf(args[0]) >= 0) {
+    } else if (["/hp", "/currenthp", "/ac", "/str", "/strength", "/dex", "/dexterity", "/con", "/cons", "/constitution", "/int", "intelligence", "/wis", "/wisdom", "/cha", "/charisma"].indexOf(args[0]) >= 0) {
         if (args.length < 2) {
             return await sendMessage("USAGE: `" + args[0] + " value` - Sets the specified stat to the given value.");
         }
