@@ -98,7 +98,7 @@ function createCharacter(id, characterName) {
     let templateCharacter = JSON.parse(fs.readFileSync(schemaPath + "character.json", "utf8"));
     templateCharacter.name = characterName;
     user.characters.push(templateCharacter);
-    user.characters.activeCharacter = user.characters.length - 1;
+    user.activeCharacter = user.characters.length - 1;
     writeUser(id, user);
 }
 
