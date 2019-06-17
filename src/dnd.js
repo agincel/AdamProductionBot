@@ -132,7 +132,7 @@ async function handle(text, platformObject, args, bots) {
             return await sendMessage("You have not created a character yet. Do so with " + prefix + "newcharacter");
         }
 
-        let s = "Active Character: " + character.name + "\n";
+        let s = "Active Character:\nName: " + character.name + "\n";
         s += `Class: ${character.class}\n`;
         s += `Level: ${character.level}\n`;
         s += `Money: ${character.money}\n\n`;
