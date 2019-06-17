@@ -1,5 +1,6 @@
 {
     "name": "Goblin",
+    "level": "4",
     "stats": {
         "hp": 35,
         "currentHp": 35,

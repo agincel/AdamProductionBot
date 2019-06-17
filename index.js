@@ -73,6 +73,7 @@ async function handleMessage(text, platformObject, args) {
     await quote.handle(text, platformObject, args, platformObject.msg.reply_to_message, bots);
     await likes.handle(args, platformObject, platformObject.replyID ? platformObject.msg.reply_to_message.from.id.toString() : null, bots);
     await blaze.handle(text, platformObject, args, bots);
+    await dnd.handle(text, platformObject, args, bots);
 }
 
 

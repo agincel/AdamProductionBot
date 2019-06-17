@@ -151,6 +151,26 @@ function getChosenStat(statName) {
     return chosenStat;
 }
 
+function getChosenList(listCommandName) {
+    let map = {
+        "/addtrait": "traits",
+        "/removetrait": "traits",
+        "/additem": "inventory",
+        "/removeitem": "inventory",
+        "/addinventory": "inventory",
+        "/removeinventory": "inventory",
+        "/addspell": "spells",
+        "/removespell": "spells",
+        "/addequipment": "equipment",
+        "/removeequipment": "equipment",
+        "/addequip": "equipment",
+        "/removeequip": "equipment"
+    };
+    if (map[listCommandName])
+        return map[listCommandName];
+    return null;
+}
+
 function setCharacterStat(id, statName, value) {
     let character = getCharacter(id);
     if (!character) {
@@ -213,7 +233,33 @@ function addCharacterList(id, listName, valueToAdd) {
         return false;
     }
 
-    character[listName].push(valueToAdd);
+    let chosenList = getChosenList(listName);
+    if (!chosenList) {
+        return false;
+    }
+
+    character[chosenList].push(valueToAdd);
+
+    writeCharacter(id, character);
+    return true;
+}
+
+function removeCharacterList(id, listName, indexToRemove) {
+    let character = getCharacter(id);
+    if (!character) {
+        return false;
+    }
+
+    let chosenList = getChosenList(listName);
+    if (!chosenList) {
+        return false;
+    }
+
+    if (indexToRemove >= character[chosenList].length) {
+        return false;
+    }
+
+    character[chosenList].splice(indexToRemove, 1);
 
     writeCharacter(id, character);
     return true;
@@ -225,8 +271,34 @@ function addEnemyList(id, ind, listName, valueToAdd) {
         return false;
     }
 
-    enemy[listName.toLowerCase()].push(valueToAdd);
+    let chosenList = getChosenList(listName);
+    if (!chosenList) {
+        return false;
+    }
 
+    enemy[chosenList].push(valueToAdd);
+
+    writeEnemy(id, ind, enemy);
+    return true;
+}
+
+function removeEnemyList(id, ind, listName, indexToRemove) {
+    let enemy = getEnemy(id, ind);
+    if (!enemy) {
+        return false;
+    }
+
+    let chosenList = getChosenList(listName);
+    if (!chosenList) {
+        return false;
+    }
+
+    if (indexToRemove >= enemy[chosenList].length) {
+        return false;
+    }
+
+
+    enemy[chosenList].splice(indexToRemove, 1);
     writeEnemy(id, ind, enemy);
     return true;
 }
@@ -322,4 +394,6 @@ module.exports.setEnemyStat = setEnemyStat;
 module.exports.setCharacterTrait = setCharacterTrait;
 module.exports.setEnemyTrait = setEnemyTrait;
 module.exports.addCharacterList = addCharacterList;
+module.exports.removeCharacterList = removeCharacterList;
 module.exports.addEnemyList = addEnemyList;
+module.exports.removeEnemyList = removeEnemyList;
