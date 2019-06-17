@@ -111,7 +111,7 @@ async function handle(text, platformObject, args, bots) {
         }
 
         let v = parseInt(args[1]);
-        if (!v) {
+        if (!v && v !== 0) {
             for (let i = 0; i < user.characters.length; i++) {
                 if (user.characters[i].name.toLowerCase().startsWith(args[1])) {
                     v = i;
