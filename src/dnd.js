@@ -146,10 +146,10 @@ async function handle(text, platformObject, args, bots) {
         s += `WIS: ${character.stats.wisdom}\n`;
         s += `CHA: ${character.stats.charisma}\n\n`;
 
-        s += `Traits: \`${prefix}traits\`\n`;
-        s += `Spells: \`${prefix}spells\`\n`;
-        s += `Equipment: \`${prefix}equipment\`\n`;
-        s += `Inventory: \`${prefix}inventory\`\n`;
+        s += `Traits: ${prefix}traits\n`;
+        s += `Spells: ${prefix}spells\n`;
+        s += `Equipment: ${prefix}equipment\n`;
+        s += `Inventory: ${prefix}inventory\n`;
         
         return await sendMessage(s);
     } else if (["/traits", "/spells", "/equipment", "/inventory"].indexOf(args[0]) >= 0) {
