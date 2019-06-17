@@ -1,10 +1,10 @@
 {
-    "name": "Alyst",
-    "class": "Paladin",
+    "name": "",
+    "class": "",
     "level": 1,
     "stats": {
         "hp": 20,
-        "currenthp": 20,
+        "currentHp": 20,
         "ac": 12,
         "strength": 10,
         "dexterity": 10,

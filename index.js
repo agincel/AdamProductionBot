@@ -32,6 +32,11 @@ const basic = require("./src/basic.js");
 const quote = require("./src/quote.js");
 const likes = require("./src/likes.js");
 const blaze = require("./src/blaze.js");
+const dnd = require("./src/dnd.js");
+
+//load dnd db
+const dndIO = require("./src/dnd/dndIO.js");
+dndIO.load();
 
 DiscordBot.on('ready', () => {
     console.log(`Discord is logged in as ${DiscordBot.user.tag}!`);
@@ -179,8 +184,6 @@ TelegramBot.on('message', async (msg) => {
             time: (msg.date * 1000) + timeZoneOffset,
             mentions: mentions
         }
-        console.log(args);
-        console.log(mentions);
 
 	if (telegramChats.indexOf(platformObject.server) == -1) {
 		telegramChats.push(platformObject.server);

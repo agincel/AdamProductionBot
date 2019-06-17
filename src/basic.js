@@ -44,49 +44,6 @@ async function handle(text, platformObject, args, bots) {
                 ret += "sn" + args[i] + " ";
         }
         return await sendMessage(ret);
-    } else if (args[0] == "/roll") {
-        if (args.length <= 1 || args[1].indexOf("d") < 0) {
-            return await sendMessage("Usage: `/roll XdY`, for example: `/roll 2d20`");
-        }
-        try {
-            let quantity = parseInt(args[1].split("d")[0]);
-            let diceSize = parseInt(args[1].split("d")[1]);
-            let modifier = 0;
-            if (args.length > 1) {
-                modifier = parseInt(args[2]);
-            if (modifier.toString() == "NaN")
-                modifier = 0;
-            }
-            if (quantity == NaN || diceSize == NaN)
-                return await sendMessage("Invalid dice quantity or size.");
-
-            let results = [];
-            let total = 0;
-            for (let i = 0; i < Math.abs(quantity); i++) {
-                let roll = Math.floor(Math.random() * diceSize) + 1;
-                total += roll;
-                results.push(roll);
-            }
-            let ret = "```\nRolling " + quantity.toString() + "d" + diceSize.toString() + (quantity == 1 ? "" : "s") + ":\n";
-            let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            for (let i = 0; i < results.length && results.length < 120; i++) {
-                ret += "Die " + alphabet[Math.floor(Math.random() * alphabet.length)] + ": " + results[i].toString() + "\n";
-            }
-            ret += "-----\n";
-            ret += "Total: " + total.toString();
-            total += modifier;
-            if (modifier > 0) {
-                ret += "\n-----\n+" + modifier.toString() + " = " + total.toString();
-            } else if (modifier < 0) {
-                ret += "\n-----\n" + modifier.toString() + " = " + total.toString();
-            }
-
-	        ret += "\n```";
-            return await sendMessage(ret);
-        } catch (e) {
-            console.log(e);
-            return await sendMessage("There was an error. Unless you gave me some weird input, you should let Adam know.");
-        }
     } else if (args[0] == "/8ball") {
         let replies = [
             "👀",
@@ -133,6 +90,7 @@ async function handle(text, platformObject, args, bots) {
         ret += prefix + "snail - snail people == sneeple\n";
         ret += prefix + "quote - use alone or with a number to pull a quote\n";
         ret += prefix + "likes or " + prefix + "karma  - view your karma\n";
+        ret += prefix + "dnd - Get help commands specific to the DnD module!\n";
 	    ret += prefix + "blaze - use at 4:20 for up to six points.\n";
 	    ret += prefix + "blazetime - use to learn what time I think it is.\n";
 	    ret += prefix + "leaderboard - see the blaze leaderboard!\n";

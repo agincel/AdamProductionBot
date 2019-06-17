@@ -93,9 +93,26 @@ function getUser(id, username) {
     return userData;
 }
 
+function createCharacter(id, characterName) {
+    let user = getUser(id, null);
+    let templateCharacter = JSON.parse(fs.readFileSync(schemaPath + "character.json", "utf8"));
+    templateCharacter.name = characterName;
+    user.characters.push(templateCharacter);
+    user.characters.activeCharacter = user.characters.length - 1;
+    writeUser(id, user);
+}
+
 function writeCharacter(id, character) {
     let user = getUser(id, null);
     user.characters[user.activeCharacter] = character;
+    writeUser(id, user);
+}
+
+function createEnemy(id, enemyName) {
+    let user = getUser(id, null);
+    let templateEnemy = JSON.parse(fs.readFileSync(schemaPath + "/enemy.json", "utf8"));
+    templateEnemy.name = enemyName;
+    user.enemies.push(templateEnemy);
     writeUser(id, user);
 }
 
@@ -296,10 +313,13 @@ module.exports.writeGroup = writeGroup;
 module.exports.createUser = createUser;
 module.exports.createGroup = createGroup;
 
+module.exports.createCharacter = createCharacter;
+module.exports.createEnemy = createEnemy;
 module.exports.getCharacter = getCharacter;
 module.exports.getEnemy = getEnemy;
 module.exports.setCharacterStat = setCharacterStat;
 module.exports.setEnemyStat = setEnemyStat;
 module.exports.setCharacterTrait = setCharacterTrait;
+module.exports.setEnemyTrait = setEnemyTrait;
 module.exports.addCharacterList = addCharacterList;
 module.exports.addEnemyList = addEnemyList;

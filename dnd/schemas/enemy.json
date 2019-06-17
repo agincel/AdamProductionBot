@@ -2,7 +2,7 @@
     "name": "Goblin",
     "stats": {
         "hp": 35,
-        "currenthp": 35,
+        "currentHp": 35,
         "ac": 12,
         "strength": 10,
         "dexterity": 10,
