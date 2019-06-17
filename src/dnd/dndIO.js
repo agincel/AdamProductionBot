@@ -343,7 +343,6 @@ function createGroup(id) {
 /*
     Returns group by ID.
     Creates group if not found.
-    Updates groupname each time called.
     Caches group in RAM groups.
 */
 function getGroup(id) {
@@ -359,12 +358,6 @@ function getGroup(id) {
     if (!groupData) {
         groupData = JSON.parse(fs.readFileSync(groupPath, "utf8"));
         groups[id] = groupData;
-    }
-
-    //set or update groupname, if applicable
-    if (groupname && (!groupData.groupname || groupData.groupname != groupname)) {
-        groupData.groupname = groupname;
-        writeGroup(id, groupData);
     }
 
     //any new fields not from original schema to add to all objects
