@@ -142,7 +142,7 @@ function getChosenStat(statName) {
     let stats = ["hp", "currentHp", "ac", "strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"];
     let chosenStat = "";
     for (let i = 0; i < stats.length; i++) {
-        if (statName.length >= 3 && stats[i].toLowerCase().startsWith(statName.toLowerCase())) {
+        if (statName.length >= 2 && stats[i].toLowerCase().startsWith(statName.toLowerCase())) {
             chosenStat = stats[i];
             break;
         }
