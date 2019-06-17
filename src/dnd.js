@@ -126,7 +126,7 @@ async function handle(text, platformObject, args, bots) {
         user.activeCharacter = v;
         dndIO.writeUser(user.id, user);
         character = dndIO.getCharacter(user.id);
-        return await sendMessage(`Successfully set active character to ${character.name}. Get full character info with \`${prefix}sheet\``);
+        return await sendMessage(`Successfully set active character to ${character.name}. Get full character info with ${prefix}sheet`);
     } else if (args[0] == "/sheet" || args[0] == "/info") {
         if (!character) {
             return await sendMessage("You have not created a character yet. Do so with " + prefix + "newcharacter");
