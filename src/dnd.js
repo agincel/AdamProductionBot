@@ -421,11 +421,12 @@ async function handle(text, platformObject, args, bots) {
         if (!enemy) {
             return await sendMessage("Unable to find Enemy #" + v + " - Check your enemies list with " + prefix + "myEnemies");
         }
+        let enemyName = enemy.name;
         
-        let splicedEnemy = user.enemies.splice(v, 1);
+        user.enemies.splice(v, 1);
         dndIO.writeUser(user.id, user);
 
-        return await sendMessage(`Successfully deleted ${splicedEnemy.name}. Bye!`);
+        return await sendMessage(`Successfully deleted ${enemyName}. Bye!`);
     }
 
     //PLAY COMMANDS
