@@ -722,6 +722,8 @@ async function handle(text, platformObject, args, bots) {
                 r = 4;
             else   
                 r = 5;
+
+            return r;
         }
 
         let flavor = [
@@ -808,6 +810,8 @@ async function handle(text, platformObject, args, bots) {
                 r = 4;
             else   
                 r = 5;
+
+            return r;
         }
 
         let flavor = [
