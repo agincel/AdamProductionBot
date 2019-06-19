@@ -314,7 +314,7 @@ async function handle(text, platformObject, args, bots) {
         enemy.stats.charisma = iArgs[8];
         dndIO.writeEnemy(user.id, user.enemies.length - 1, enemy);
 
-        return await sendMessage(`New Enemy #${user.enemies.length - 1} "${name}" created. Read its info with \`${prefix}enemy ${user.enemies.length - 1}\`. Add to its "inventory" (can be used for traits, spells, loot, etc) with \`${prefix}enemyAddItem ${user.enemies.length - 1} Item To Add`);
+        return await sendMessage(`New Enemy #${user.enemies.length - 1} ${name} created.\nRead its info with: ${prefix}enemy ${user.enemies.length - 1}\nAdd to its inventory (can be used for traits, spells, loot, etc) with: ${prefix}enemyAddItem ${user.enemies.length - 1} Item To Add`);
     } else if (["/enemyname", "/enemylevel"].indexOf(args[0]) >= 0) {
         if (args.length < 3) {
             return await sendMessage("USAGE: " + args[0] + " 0 Value - would set the desired property of Enemy 0 to the given Value.");
