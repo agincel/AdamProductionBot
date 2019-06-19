@@ -337,7 +337,7 @@ async function handle(text, platformObject, args, bots) {
         } else {
             return await sendMessage(`The operation was unsuccessful. Reach out to the developer.`);
         }
-    } else if ["/enemyhp", "/enemycurrenthp", "/enemyac", "/enemystr", "/enemystrength", "/enemydex", "/enemydexterity", "/enemycon", "/enemyconstitution", "/enemyint", "/enemyintelligence", "/enemywis", "/enemywisdom", "/enemycha", "/enemycharisma"].indexOf(args[0]) >= 0) {
+    } else if (["/enemyhp", "/enemycurrenthp", "/enemyac", "/enemystr", "/enemystrength", "/enemydex", "/enemydexterity", "/enemycon", "/enemyconstitution", "/enemyint", "/enemyintelligence", "/enemywis", "/enemywisdom", "/enemycha", "/enemycharisma"].indexOf(args[0]) >= 0) {
         if (args.length < 3) {
             return await sendMessage("USAGE: " + args[0] + " 0 Value - would set the desired property of Enemy 0 to the given Value.");
         }
