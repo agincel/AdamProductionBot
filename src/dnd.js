@@ -34,7 +34,6 @@ function getHelp(prefix) {
     s += prefix + "combat - Commands to be used during combat by both players and the DM alike.\n";
     s += prefix + "character X - Set the active character.\n";
     s += prefix + "sheet or " + prefix + "info - Read stats and info about the active character.\n";
-    s += prefix + "newcharacter Name - Creates a new character with the given name.\n";
     s += prefix + "setup - Commands to help set or change your character's stats, traits, spells, equipment, etc.\n";
     s += prefix + "enemySetup - Commands to help create or modify your created enemies for use in campaigns.\n";
     s += prefix + "givemoney @user 150 - Would give @user's active character 150gp. From a DM this can be done with no limit, from players they can only give from what they have.\n";
@@ -45,6 +44,7 @@ function getHelp(prefix) {
 
 function getSetup(prefix) {
     let s = "DnD Character and Enemy Setup Help:\n\n";
+    s += prefix + "newcharacter Name - Creates a new character with the given name.\n";
     s += prefix + "name - set the Active Character's name.\n";
     s += prefix + "class - set the Active Character's class.\n";
     s += prefix + "level - set the Active Character's level.\n";
@@ -239,6 +239,13 @@ async function handle(text, platformObject, args, bots) {
 
         character = dndIO.getCharacter(user.id);
         return await sendMessage(`Successfully set active character to ${character.name}. Get full character info with ${prefix}sheet`);
+    } else if (args[0] == "/characters") {
+        let s = "My Created Characters:\n\n";
+        for (let i = 0; i < user.characters.length; i++) {
+            s += i.toString() + ": " + user.characters[i].name + "\n";
+        }
+
+        return await sendMessage(s);
     } else if (args[0] == "/sheet" || args[0] == "/info") {
         if (!character) {
             return await sendMessage("You have not created a character yet. Do so with " + prefix + "newcharacter");
@@ -276,13 +283,48 @@ async function handle(text, platformObject, args, bots) {
         }
         return await sendMessage(s);
     } else if (args[0] == "/newcharacter") {
-        if (args.length <= 1) {
-            return await sendMessage("USAGE: `/newcharacter Name`");
+        let errorString = "USAGE: `" + args[0] + " Level HP AC STR DEX CON INT WIS CHA Name` - Creates a Character with all stats. Check https://waveparadigm.dev/dndcharacter for a wizard that creates this command for you.";
+        if (args.length < 11) {
+            return await sendMessage(errorString);
         }
-        let characterName = text.substring("/newcharacter ".length, text.length);
-        dndIO.createCharacter(user.id, characterName);
-        character = dndIO.getCharacter(user.id);
-        return await sendMessage(`Created new character ${character.name}. They are now your active character - use the \`/character\` command to switch characters.\n\nUse the \`/setup\` command for info on setting ${character.name}'s stats, traits, etc.`);
+
+        let name = text.substring(text.indexOf(text.split(" ")[10]), text.length); //from the first word after CHA to the end is the name
+
+        let iArgs = []; //Level HP AC STR DEX CON INT WIS CHA
+        for (let i = 1; i < 10; i++) {
+            let v = parseInt(args[i]);
+            if (isNaN(v)) {
+                return await sendMessage(errorString);
+            } else {
+                iArgs.push(v);
+            }
+        }
+
+        dndIO.createCharacter(user.id, name);
+        user = dndIO.getUser(user.id, user.username); //update user, now has character
+        let character = dndIO.getCharacter(user.id);
+        character.level = iArgs[0];
+        character.stats.hp = iArgs[1];
+        character.stats.currentHp = enemy.stats.hp;
+        character.stats.ac = iArgs[2];
+        character.stats.strength = iArgs[3];
+        character.stats.dexterity = iArgs[4];
+        character.stats.constitution = iArgs[5];
+        character.stats.intelligence = iArgs[6];
+        character.stats.wisdom = iArgs[7];
+        character.stats.charisma = iArgs[8];
+        
+
+        return await sendMessage(`New Character #${user.enemies.length - 1}: ${name} created.\nRead their info with: ${prefix}sheet after switching to it with ${prefix}character ${user.activeCharacter}\nView ${prefix}setup to use more commands to flesh out this character.`);
+    } else if (args[0] == "/deletecharacter") {
+        if (args.length < 2) {
+            return await sendMessage("USAGE: " + args[0] + " 0 - Deletes Character 0. Be careful, this is irreversible.");
+        }
+
+        let v = parseInt(args[1]);
+        if (isNaN(v)) {
+            return await sendMessage(args[1] + " is not a valid index. View your characters with " + prefix + "characters");
+        }
     } else if (["/name", "/class", "/level", "/money"].indexOf(args[0]) >= 0) {
         if (args.length < 2) {
             if (character && character[args[0].substring(1)]) {
