@@ -285,6 +285,9 @@ async function handle(text, platformObject, args, bots) {
         return await sendMessage(`Created new character ${character.name}. They are now your active character - use the \`/character\` command to switch characters.\n\nUse the \`/setup\` command for info on setting ${character.name}'s stats, traits, etc.`);
     } else if (["/name", "/class", "/level", "/money"].indexOf(args[0]) >= 0) {
         if (args.length < 2) {
+            if (character && character[args[0].substring(1)]) {
+                return await sendMessage(character.name + "'s " + args[0].substring(1) + ": " + character[args[0].substring(1)] + "\n\nUse `" + args[0] + " value` to overwrite the trait with a new `value`.");
+            }
             return await sendMessage("USAGE: `" + args[0] + " value` - Sets the specified character trait to the given value.");
         }
         let value = text.substring(args[0].length + 1, text.length);
