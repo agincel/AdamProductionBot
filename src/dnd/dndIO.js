@@ -361,10 +361,10 @@ function getGroup(id) {
     }
 
     //any new fields not from original schema to add to all objects
-    /*if (groupData.newField == undefined) {
-        groupData.newField = 0;
+    if (groupData.players == undefined) {
+        groupData.players = {};
         writeGroup(id, groupData);
-    }*/
+    }
 
     return groupData;
 }
@@ -380,6 +380,7 @@ module.exports.createGroup = createGroup;
 
 module.exports.createCharacter = createCharacter;
 module.exports.createEnemy = createEnemy;
+module.exports.writeEnemy = writeEnemy;
 module.exports.getCharacter = getCharacter;
 module.exports.getEnemy = getEnemy;
 module.exports.setCharacterStat = setCharacterStat;
