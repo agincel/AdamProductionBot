@@ -377,7 +377,7 @@ async function handle(text, platformObject, args, bots) {
         
         let result = dndIO.addEnemyList(user.id, v, "inventory", value);
         if (result) {
-            return await sendMessage(`Successfully added ${value} to ${enemy.name}'s Inventory with Index ${enemy.inventory.length}.`);
+            return await sendMessage(`Successfully added ${value} to ${enemy.name}'s Inventory with Index ${enemy.inventory.length - 1}.`);
         } else {
             return await sendMessage(`Operation failed. Reach out to the developer to investigate this issue.`);
         }
