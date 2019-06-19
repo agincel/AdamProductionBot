@@ -280,6 +280,7 @@ async function handle(text, platformObject, args, bots) {
             s += i.toString() + ": " + user.enemies[i].name + "\n";
         }
         s += "------\n`" + prefix + "enemy 0` would get you info on Enemy 0, etc.";
+        return await sendMessage(s);
     } else if (args[0] == "/newenemy") {
         let errorString = "USAGE: " + args[0] + " Level HP AC STR DEX CON INT WIS CHA Name - Creates an enemy with all stats. Check https://waveparadigm.dev/dndenemy for a wizard that creates this command for you.";
         if (args.length < 11) {
