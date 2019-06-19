@@ -407,6 +407,25 @@ async function handle(text, platformObject, args, bots) {
         let removed = enemy.inventory.splice(w, 1);
         dndIO.writeEnemy(user.id, v, enemy);
         return await sendMessage(`Successfully removed item from ${enemy.name}: ${removed}`);
+    } else if (args[0] == "/deleteenemy") {
+        if (args.length < 2) {
+            return await sendMessage("USAGE: " + args[0] + " 0 - Deletes the Enemy at index 0. Check your enemies list with " + prefix + "myEnemies");
+        }
+
+        let v = parseInt(args[1]);
+        if (isNaN(v)) {
+            return await sendMessage("Invalid number.");
+        }
+
+        let enemy = dndIO.getEnemy(user.id, v);
+        if (!enemy) {
+            return await sendMessage("Unable to find Enemy #" + v + " - Check your enemies list with " + prefix + "myEnemies");
+        }
+        
+        let splicedEnemy = user.enemies.splice(v, 1);
+        dndIO.writeUser(user.id, user);
+
+        return await sendMessage(`Successfully deleted ${splicedEnemy.name}. Bye!`);
     }
 
     //PLAY COMMANDS
