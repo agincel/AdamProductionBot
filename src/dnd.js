@@ -325,6 +325,11 @@ async function handle(text, platformObject, args, bots) {
         if (isNaN(v)) {
             return await sendMessage(args[1] + " is not a valid index. View your characters with " + prefix + "characters");
         }
+        let name = user.characters[v].name;
+        user.characters.splice(v, 1);
+        dndIO.writeUser(user.id, user);
+
+        return await sendMessage("Deleted " + name + ".");
     } else if (["/name", "/class", "/level", "/money"].indexOf(args[0]) >= 0) {
         if (args.length < 2) {
             if (character && character[args[0].substring(1)]) {
