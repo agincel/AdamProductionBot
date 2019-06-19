@@ -397,7 +397,7 @@ async function handle(text, platformObject, args, bots) {
             return await sendMessage("Unable to find Enemy #" + v + " - Check your enemies list with " + prefix + "myEnemies");
         }
 
-        if (enemy.inventory.length >= w) {
+        if (w >= enemy.inventory.length) {
             return await sendMessage("Index " + w + " is out of bounds for this enemy. Check their inventory with " + prefix + "enemyInventory " + v);
         }
         
