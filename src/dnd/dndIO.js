@@ -164,7 +164,8 @@ function getChosenList(listCommandName) {
         "/addequipment": "equipment",
         "/removeequipment": "equipment",
         "/addequip": "equipment",
-        "/removeequip": "equipment"
+        "/removeequip": "equipment",
+        "inventory": "inventory"
     };
     if (map[listCommandName])
         return map[listCommandName];
