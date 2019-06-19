@@ -9,6 +9,22 @@ const send = require("./send.js");
 const fs = require("fs");
 const dndIO = require("./dnd/dndIO.js");
 
+function getModifier(v) {
+    return Math.floor(v / 2) - 5;
+}
+
+function getChosenStat(statName) {
+    let stats = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"];
+    let chosenStat = null;
+    for (let i = 0; i < stats.length; i++) {
+        if (statName.length >= 2 && stats[i].toLowerCase().startsWith(statName.toLowerCase())) {
+            chosenStat = stats[i];
+            break;
+        }
+    }
+
+    return chosenStat;
+}
 
 function getHelp(prefix) {
     let s = "DnD Module Help:\n\n";
@@ -21,6 +37,8 @@ function getHelp(prefix) {
     s += prefix + "newcharacter Name - Creates a new character with the given name.\n";
     s += prefix + "setup - Commands to help set or change your character's stats, traits, spells, equipment, etc.\n";
     s += prefix + "enemySetup - Commands to help create or modify your created enemies for use in campaigns.\n";
+    s += prefix + "givemoney @user 150 - Would give @user's active character 150gp. From a DM this can be done with no limit, from players they can only give from what they have.\n";
+    s += prefix + "pay 150 - Would cause the player typing it to lose 150gp. Used to pay shopkeepers, NPCs, etc.\n";
 
     return s;
 }
@@ -60,7 +78,6 @@ function getEnemySetup(prefix) {
     s += prefix + "enemyname 0 Name - set enemy 0's name.\n";
     s += prefix + "enemylevel 0 5 - set enemy 0's level.\n";
     s += prefix + "enemyhp 0 25 - set enemy 0's maximum HP.\n";
-    s += prefix + "enemycurrentHp 0 25 - set enemy 0's current HP. Cannot go higher than max. Could also use /heal for this.\n";
     s += prefix + "enemyac 0 15 - set enemy 0's Armor Class.\n";
     s += prefix + "enemystr 0 16 - set enemy 0's Strength stat.\n";
     s += prefix + "enemydex 0 16 - set enemy 0's Dexterity stat.\n";
@@ -76,8 +93,25 @@ function getEnemySetup(prefix) {
 function getDmHelp(prefix) {
     let s = "DM Commands:\n\n";
 
-    s += prefix + "spawn 0 - Would spawn Enemy 0 from your enemies list. Enemies can be targeted by players.";
-    s += prefix + "pay @user X - Would add X money to the character used by the tagged user.";
+    s += prefix + "spawn 0 - Would spawn Enemy 0 from your enemies list. Enemies can be targeted by players.\n";
+    s += prefix + "removeEnemy 0 - Would remove Enemy 0 from the enemies list. Usually done once the enemy is killed.\n";
+    s += prefix + "pay @user X - Would add X money to the character used by the tagged user.\n";
+    s += prefix + "enemies - View a list of all spawned enemies.\n";
+    s += prefix + "save @user STR - Has @user make a Strength Saving Throw. Uses that user's active character's relevant modifier, and returns the result.\n";
+    s += prefix + "hit @user 15 - Checks if a 15 hit's @user's active character's AC.\n";
+    s += prefix + "damage @user 20 - Damages @user's active character by 20 HP.\n";
+    s += prefix + "heal @user 10 - Heals @user's active character for 10 HP.\n";
+
+    return s;
+}
+
+function getCombatHelp(prefix) {
+    let s = "Player Combat Commands:\n\n";
+    s += prefix + "enemies - View a list of all spawned enemies.\n";
+    s += prefix + "save 0 STR - Has Enemy 0 make a Strength Saving Throw. Uses that enemy's relevant modifier, and returns the result.\n";
+    s += prefix + "hit 0 15 - checks if a 15 hits Enemy 0's AC.\n";
+    s += prefix + "damage 0 20 - Damages Enemy 0 by 20 HP.\n";
+    s += prefix + "heal 0 10 - Heals enemy 0 for 10 HP.\n";
 
     return s;
 }
@@ -97,6 +131,10 @@ async function handle(text, platformObject, args, bots) {
     //add player to group if not present
     if (group.players[user.id] == undefined) {
         group.players[user.id] = user.activeCharacter;
+        dndIO.writeGroup(platformObject.server, group);
+    } else {
+        user.activeCharacter = group.players[user.id];
+        dndIO.writeUser(user.id, user);
     }
 
     //HELP MESSAGES
@@ -108,6 +146,8 @@ async function handle(text, platformObject, args, bots) {
         return await sendMessage(getDmHelp(prefix));
     } else if (args[0] == "/enemysetup") {
         return await sendMessage(getEnemySetup(prefix));
+    } else if (args[0] == "/combat") {
+        return await sendMessage(getCombatHelp(prefix));
     }
     
     //DM COMMANDS
@@ -115,10 +155,62 @@ async function handle(text, platformObject, args, bots) {
         if (platformObject.mentions.length > 0 && (!group.dm || platformObject.userID == group.dm)) {
             group.dm = platformObject.mentions[0].id;
             return await sendMessage("Successfully set " + platformObject.mentions[0].username + " as this group's DM. They can now use " + prefix + "dmhelp to view commands available to them.");
-        }else {
+        } else if (!group.dm && args.length == 1) {
+            group.dm = user.id;
+            return await sendMessage("Successfully set " + user.username + " as this group's DM. They can now use " + prefix + "dmhelp to view commands available to them.");
+        } else {
             return await sendMessage("Usage: `" + prefix + " @user` - @ mention the user in this group you'd like to act as your DM.");
         }
-    } 
+    } else if (args[0] == "/spawn") {
+        if (group.dm == user.id) {
+            //you are the DM
+            if (args.length < 2) {
+                return await sendMessage("USAGE: " + args[0] + " 0 - Spawns Enemy 0 from your Enemies List into this group.");
+            }
+
+            let v = parseInt(args[1]);
+            if (isNaN(v)) {
+                return await sendMessage(args[1] + " is not a valid integer.");
+            }
+
+            let enemyToSpawn = user.enemies[v];
+            if (!enemyToSpawn) {
+                return await sendMessage("Unable to find Enemy #" + v + " in your enemies list. Check your enemies list with " + prefix + "myEnemies");
+            }
+
+            group.enemies.push(JSON.parse(JSON.stringify(enemyToSpawn)));
+            dndIO.writeGroup(platformObject.server, group);
+
+            return await sendMessage(enemyToSpawn.name + " appeared!\n\nView all enemies with " + prefix + "enemies");
+        } else {
+            return await sendMessage("Only the DM can spawn enemies with the " + args[0] + " command.");
+        }
+    } else if (args[0] == "/removeenemy") {
+        if (group.dm == user.id) {
+            //you are the DM
+            if (args.length < 2) {
+                return await sendMessage("USAGE: " + args[0] + " 0 - Spawns Enemy 0 from your Enemies List into this group.");
+            }
+
+            let v = parseInt(args[1]);
+            if (isNaN(v)) {
+                return await sendMessage(args[1] + " is not a valid integer.");
+            }
+
+            if (v >= group.enemies.length || !group.enemies[v]) {
+                return await sendMessage(v.toString() + " it not a valid enemy index. Check all currently spawned enemies with " + prefix + "enemies");
+            }
+
+            let enemyName = group.enemies[v].name;
+
+            group.enemies.splice(v, 1);
+            dndIO.writeGroup(platformObject.server, group);
+
+            return await sendMessage(enemyName + " has been removed.");
+        } else {
+            return await sendMessage("Only the DM can remove enemies with the " + args[0] + " command.");
+        }
+    }
     
     //PLAYER SETUP/INFO COMMANDS
     else if (args[0] == "/character") {
@@ -141,6 +233,10 @@ async function handle(text, platformObject, args, bots) {
 
         user.activeCharacter = v;
         dndIO.writeUser(user.id, user);
+
+        group.players[user.id] = v;
+        dndIO.writeGroup(platformObject.server, group);
+
         character = dndIO.getCharacter(user.id);
         return await sendMessage(`Successfully set active character to ${character.name}. Get full character info with ${prefix}sheet`);
     } else if (args[0] == "/sheet" || args[0] == "/info") {
@@ -202,6 +298,10 @@ async function handle(text, platformObject, args, bots) {
         }
     } else if (["/hp", "/currenthp", "/ac", "/str", "/strength", "/dex", "/dexterity", "/con", "/cons", "/constitution", "/int", "/intelligence", "/wis", "/wisdom", "/cha", "/charisma"].indexOf(args[0]) >= 0) {
         if (args.length < 2) {
+            let stat = dndIO.getCharacterStat(user.id, args[0].substring(1));
+            if (stat !== false) {
+                return await sendMessage(character.name + "'s " + args[0].substring(1) + ": " + stat + "\n\nUse `" + args[0] + " value` to set that stat to a new `value`.");
+            }
             return await sendMessage("USAGE: `" + args[0] + " value` - Sets the specified stat to the given value.");
         }
 
@@ -258,7 +358,7 @@ async function handle(text, platformObject, args, bots) {
 
         let enemy = dndIO.getEnemy(user.id, v);
         if (!enemy) {
-            return await sendMessage("Unable to find enemy with index " + v + " - See a list of all your enemies with " + prefix + "`myEnemies`");
+            return await sendMessage("Unable to find enemy with index " + v + " - See a list of all your enemies with " + prefix + "myEnemies");
         }
 
         let s = `Enemy ${v}:\nName: ${enemy.name}\n`;
@@ -350,7 +450,7 @@ async function handle(text, platformObject, args, bots) {
         }
     } else if (["/enemyhp", "/enemycurrenthp", "/enemyac", "/enemystr", "/enemystrength", "/enemydex", "/enemydexterity", "/enemycon", "/enemyconstitution", "/enemyint", "/enemyintelligence", "/enemywis", "/enemywisdom", "/enemycha", "/enemycharisma"].indexOf(args[0]) >= 0) {
         if (args.length < 3) {
-            return await sendMessage("USAGE: " + args[0] + " 0 Value - would set the desired property of Enemy 0 to the given Value.");
+            return await sendMessage("USAGE: " + args[0] + " 0 15 - would set the desired property of Enemy 0 to 15.");
         }
 
         let v = parseInt(args[1]);
@@ -480,7 +580,362 @@ async function handle(text, platformObject, args, bots) {
             console.log(e);
             return await sendMessage("There was an error. Unless you gave me some weird input, you should let Adam know.");
         }
-    } 
+    } else if (args[0] == "/save") {
+        if (args < 3) {
+            return await sendMessage("USAGE by Players on Enemies: " + args[0] + " 0 STR - Would make Enemy 0 perform a STR save, and return the result.\n\nUSAGE by DM on Players: " + args[0] + " @user STR - Would make @user perform a STR save, and return the result.");
+        }
+
+        let modifier = 0;
+        let name = "";
+
+        let chosenStat = getChosenStat(args[args.length - 1]);
+        if (!chosenStat) {
+            return await sendMessage(args[args.length - 1] + " is not a valid stat name. Examples: STR, WIS, DEX");
+        }
+
+        //targeting user
+        if (platformObject.mentions.length > 0) {
+            let targetedUser = dndIO.getUser(platformObject.mentions[0].id, null);
+            if (!targetedUser) {
+                return await sendMessage("I do not have any stored information about " + platformObject.mentions[0].username);
+            }
+
+            if (group.players[targetedUser.id] == undefined) {
+                return await sendMessage(targetedUser.username + " has not yet posted in this chat, and/or has not set their Active Player Character in this chat by using the " + prefix + "character command.");
+            }
+
+            if (targetedUser.id == group.dm) {
+                return await sendMessage("You cannot target the DM directly.");
+            }
+
+            let targetedCharacter = dndIO.getCharacterAt(targetedUser.id, group.players[targetedUser.id]);
+            if (!targetedCharacter) {
+                return await sendMessage("Unable to find " + targetedUser.username + "'s Character at Index " + group.players[targetedUser.id] + ". This shouldn't really happen so reach out to the Developer with this if you could.");
+            }
+
+            modifier = getModifier(targetedCharacter.stats[chosenStat]);
+            name = targetedCharacter.name;
+        } else {
+            let v = parseInt(args[1]); //enemy index
+            if (isNaN(v)) {
+                return await sendMessage("Invalid Enemy Index specified. To target the first enemy, use " + args[0] + " 0 " + args[args.length - 1]);
+            }
+            
+            if (v >= group.enemies.length) {
+                return await sendMessage("Invalid Enemy Index specified. View currently active enemies with " + prefix + "enemies");
+            }
+
+            let targetedEnemy = group.enemies[v];
+            if (!targetedEnemy) {
+                return await sendMessage("Unable to find the Enemy at Index " + v);
+            }
+
+            modifier = getModifier(targetedEnemy.stats[chosenStat]);
+            name = targetedEnemy.name;
+        }
+        let roll = Math.floor(Math.random() * 20) + 1;
+        let s = name + " rolling a " + chosenStat + " save:\n";
+        s += "Rolled a " + roll;
+        s += "\nModifier: " + modifier;
+        s += "\n\nFinal save: " + (roll + modifier).toString();
+        return await sendMessage(s);
+    } else if (args[0] == "/hit") {
+        if (args < 3) {
+            return await sendMessage("USAGE by Players on Enemies: " + args[0] + " 0 15 - Would check if a `15` would hit Enemy 0's AC.\n\nUSAGE by DM on Players: " + args[0] + " @user 15 - Would check if a `15` would hit @user's Active Character's AC.");
+        }
+
+        let name = "";
+        let ac = 0;
+
+        let hit = parseInt(args[args.length - 1]);
+        if (isNaN(hit)) {
+            return await sendMessage(args[args.length - 1] + " is not a hit roll. Please use a valid integer.");
+        }
+
+        //targeting user
+        if (platformObject.mentions.length > 0) {
+            let targetedUser = dndIO.getUser(platformObject.mentions[0].id, null);
+            if (!targetedUser) {
+                return await sendMessage("I do not have any stored information about " + platformObject.mentions[0].username);
+            }
+
+            if (group.players[targetedUser.id] == undefined) {
+                return await sendMessage(targetedUser.username + " has not yet posted in this chat, and/or has not set their Active Player Character in this chat by using the " + prefix + "character command.");
+            }
+
+            if (targetedUser.id == group.dm) {
+                return await sendMessage("You cannot target the DM directly.");
+            }
+
+            let targetedCharacter = dndIO.getCharacterAt(targetedUser.id, group.players[targetedUser.id]);
+            if (!targetedCharacter) {
+                return await sendMessage("Unable to find " + targetedUser.username + "'s Character at Index " + group.players[targetedUser.id] + ". This shouldn't really happen so reach out to the Developer with this if you could.");
+            }
+
+            ac = targetedCharacter.stats.ac;
+            name = targetedCharacter.name;
+        } else {
+            let v = parseInt(args[1]); //enemy index
+            if (isNaN(v)) {
+                return await sendMessage("Invalid Enemy Index specified. To target the first enemy, use " + args[0] + " 0 " + args[args.length - 1]);
+            }
+            
+            if (v >= group.enemies.length) {
+                return await sendMessage("Invalid Enemy Index specified. View currently active enemies with " + prefix + "enemies");
+            }
+
+            let targetedEnemy = group.enemies[v];
+            if (!targetedEnemy) {
+                return await sendMessage("Unable to find the Enemy at Index " + v);
+            }
+
+            ac = targetedEnemy.stats.ac;
+            name = targetedEnemy.name;
+        }
+        
+        if (hit >= ac) {
+            return await sendMessage("A " + hit + " will successfully hit " + name + "'s AC. 👍");
+        }
+
+        return await sendMessage("A " + hit + " will not hit " + name + "'s AC. 👎");
+    } else if (args[0] == "/damage") {
+        if (args < 3) {
+            return await sendMessage("USAGE by Players on Enemies: " + args[0] + " 0 15 - Would check if a `15` would hit Enemy 0's AC.\n\nUSAGE by DM on Players: " + args[0] + " @user 15 - Would check if a `15` would hit @user's Active Character's AC.");
+        }
+
+        let damage = parseInt(args[args.length - 1]);
+        if (isNaN(damage)) {
+            return await sendMessage(args[args.length - 1] + " is not a damage quantity. Please use a valid integer.");
+        }
+
+        function getFlavorIndex(percent) {
+            let r = 0;
+            if (percent > 0.65)
+                r = 0;
+            else if (percent > 0.5)
+                r = 1;
+            else if (percent > 0.35)
+                r = 2;
+            else if (percent > 0.15)
+                r = 3;
+            else if (percent > 0)
+                r = 4;
+            else   
+                r = 5;
+        }
+
+        let flavor = [
+            "They look to be in good health.",
+            "They look a little rough around the edges.",
+            "They look worse for wear.",
+            "They look unwell.",
+            "They look quite bloodied.",
+            "Their hit points have dropped to 0."
+        ]
+
+        //targeting user
+        if (platformObject.mentions.length > 0) {
+            let targetedUser = dndIO.getUser(platformObject.mentions[0].id, null);
+            if (!targetedUser) {
+                return await sendMessage("I do not have any stored information about " + platformObject.mentions[0].username);
+            }
+
+            if (group.players[targetedUser.id] == undefined) {
+                return await sendMessage(targetedUser.username + " has not yet posted in this chat, and/or has not set their Active Player Character in this chat by using the " + prefix + "character command.");
+            }
+
+            if (targetedUser.id == group.dm) {
+                return await sendMessage("You cannot target the DM directly.");
+            }
+
+            let targetedCharacter = dndIO.getCharacterAt(targetedUser.id, group.players[targetedUser.id]);
+            if (!targetedCharacter) {
+                return await sendMessage("Unable to find " + targetedUser.username + "'s Character at Index " + group.players[targetedUser.id] + ". This shouldn't really happen so reach out to the Developer with this if you could.");
+            }
+
+            targetedCharacter.currentHp = Math.max(targetedCharacter.currentHp - damage, 0);
+            dndIO.writeCharacterAt(targetedUser.id, group.players[targetedUser.id], targetedCharacter);
+
+            return await sendMessage(targetedCharacter.name + " took " + damage + " points of damage. " + flavor[getFlavorIndex(targetedCharacter.currentHp / targetedCharacter.hp)]);
+        } else {
+            let v = parseInt(args[1]); //enemy index
+            if (isNaN(v)) {
+                return await sendMessage("Invalid Enemy Index specified. To target the first enemy, use " + args[0] + " 0 " + args[args.length - 1]);
+            }
+            
+            if (v >= group.enemies.length) {
+                return await sendMessage("Invalid Enemy Index specified. View currently active enemies with " + prefix + "enemies");
+            }
+
+            let targetedEnemy = group.enemies[v];
+            if (!targetedEnemy) {
+                return await sendMessage("Unable to find the Enemy at Index " + v);
+            }
+
+            targetedEnemy.currentHp = Math.max(targetedEnemy.currentHp - damage, 0);
+            let name = targetedEnemy.name;
+
+            let deadS = " (DEAD, DM clear with " + prefix + "removeEnemy)";
+            if (targetedEnemy.currentHp == 0 && targetedEnemy.name.indexOf(deadS) == -1) {
+                targetedEnemy.name = targetedEnemy.name + deadS;
+            }
+
+            dndIO.writeGroup(platformObject.server, group);
+
+            return await sendMessage(name + " took " + damage + " points of damage. " + flavor[getFlavorIndex(targetedEnemy.currentHp / targetedEnemy.hp)]);
+        }
+    } else if (args[0] == "/heal") {
+        if (args < 3) {
+            return await sendMessage("USAGE by Players on Enemies: " + args[0] + " 0 15 - Would check if a `15` would hit Enemy 0's AC.\n\nUSAGE by DM on Players: " + args[0] + " @user 15 - Would check if a `15` would hit @user's Active Character's AC.");
+        }
+
+        let heal = parseInt(args[args.length - 1]);
+        if (isNaN(heal) || heal < 0) {
+            return await sendMessage(args[args.length - 1] + " is not a health quantity. Please use a valid positive integer.");
+        }
+
+        function getFlavorIndex(percent) {
+            let r = 0;
+            if (percent > 0.65)
+                r = 0;
+            else if (percent > 0.5)
+                r = 1;
+            else if (percent > 0.35)
+                r = 2;
+            else if (percent > 0.15)
+                r = 3;
+            else if (percent > 0)
+                r = 4;
+            else   
+                r = 5;
+        }
+
+        let flavor = [
+            "They look to be in good health.",
+            "They feel better, but still look a little rough around the edges.",
+            "Their condition improved, but they still look worse for wear.",
+            "Their condition improved somewhat, but they still look unwell.",
+            "They still look quite bloodied.",
+            "Their hit points are still at 0."
+        ]
+
+        //targeting user
+        if (platformObject.mentions.length > 0) {
+            let targetedUser = dndIO.getUser(platformObject.mentions[0].id, null);
+            if (!targetedUser) {
+                return await sendMessage("I do not have any stored information about " + platformObject.mentions[0].username);
+            }
+
+            if (group.players[targetedUser.id] == undefined) {
+                return await sendMessage(targetedUser.username + " has not yet posted in this chat, and/or has not set their Active Player Character in this chat by using the " + prefix + "character command.");
+            }
+
+            if (targetedUser.id == group.dm) {
+                return await sendMessage("You cannot target the DM directly.");
+            }
+
+            let targetedCharacter = dndIO.getCharacterAt(targetedUser.id, group.players[targetedUser.id]);
+            if (!targetedCharacter) {
+                return await sendMessage("Unable to find " + targetedUser.username + "'s Character at Index " + group.players[targetedUser.id] + ". This shouldn't really happen so reach out to the Developer with this if you could.");
+            }
+
+            targetedCharacter.currentHp = Math.min(targetedCharacter.currentHp + heal, targetedCharacter.hp);
+            dndIO.writeCharacterAt(targetedUser.id, group.players[targetedUser.id], targetedCharacter);
+
+            return await sendMessage(targetedCharacter.name + " healed " + heal + " points of damage. " + flavor[getFlavorIndex(targetedCharacter.currentHp / targetedCharacter.hp)]);
+        } else {
+            let v = parseInt(args[1]); //enemy index
+            if (isNaN(v)) {
+                return await sendMessage("Invalid Enemy Index specified. To target the first enemy, use " + args[0] + " 0 " + args[args.length - 1]);
+            }
+            
+            if (v >= group.enemies.length) {
+                return await sendMessage("Invalid Enemy Index specified. View currently active enemies with " + prefix + "enemies");
+            }
+
+            let targetedEnemy = group.enemies[v];
+            if (!targetedEnemy) {
+                return await sendMessage("Unable to find the Enemy at Index " + v);
+            }
+
+            targetedEnemy.currentHp = Math.min(targetedEnemy.currentHp + heal, targetedEnemy.hp);
+            let name = targetedEnemy.name;
+
+            let indOf = targetedEnemy.name.indexOf(" (DEAD, DM clear with " + prefix + "removeEnemy)");
+            if (indOf >= 0) {
+                targetedEnemy.name = targetedEnemy.name.substring(0, indOf);
+            }
+
+            dndIO.writeGroup(platformObject.server, group);
+
+            return await sendMessage(name + " healed " + heal + " points of damage. " + flavor[getFlavorIndex(targetedEnemy.currentHp / targetedEnemy.hp)]);
+        }
+    } else if (args[0] == "/enemies") {
+        let s = "Currently Spawned Enemies:\n\n";
+        for (let i = 0; i < group.enemies.length; i++) {
+            s += i.toString() + ": " + group.enemies[i].name + "\n";
+        }
+
+        return await sendMessage(s);
+    } else if (args[0] == "/givemoney") {
+        if (args.length < 3 || platformObject.mentions.length == 0) {
+            return await sendMessage("Usage: " + args[0] + " @user 150 - Would give 150gp to @user's active character. If this is from another player, that 150gp will be deducted from their total.");
+        }
+
+        let v = parseInt(args[args.length - 1]);
+        if (isNaN(v) || v < 0) {
+            return await sendMessage(args[args.length - 1] + " is not a valid quantity of money to give. Please type a valid integer.");
+        }
+
+        let targetedUser = dndIO.getUser(platformObject.mentions[0].id);
+        if (!targetedUser) {
+            return await sendMessage("Could not find any information about " + platformObject.mentions[0].username);
+        }
+
+        if (!group.players[targetedUser.id]) {
+            return await sendMessage("It seems " + platformObject.mentions[0].username + " has not yet participated in this group.");
+        }
+
+        let targetedCharacter = dndIO.getCharacterAt(targetedUser.id, group.players[targetedUser.id]);
+        if (!targetedCharacter) {
+            return await sendMessage("Unable to find the appropriate character belonging to " + targetedUser.username);
+        }
+
+        if (group.dm != user.id) {
+            //see if operation is possible. if yes, deduct money
+            if (parseInt(character.money) >= v) {
+                character.money = parseInt(character.money) - v;
+                dndIO.writeCharacter(user.id, character);
+            } else {
+                return await sendMessage(character.name + " has " + character.money + "gp - they cannot afford to give " + v + "gp. Come back when they're a little, mmmmmm, richer.");
+            }
+        } 
+
+        targetedCharacter.money = parseInt(targetedCharacter.money) + v;
+        dndIO.writeCharacterAt(targetedUser.id, group.players[targetedUser.id], targetedCharacter);
+
+        let n = (group.dm == user.id) ? "Successfully paid " : character.name + " successfully paid ";
+
+        return await sendMessage(n + targetedCharacter.name + " " + v + "gp.");
+    } else if (args[0] == "/pay") {
+        if (args.length < 2) {
+            return await sendMessage("USAGE: " + args[0] + " 150 - Deducts 150gp from your money.");
+        }
+
+        let v = parseInt(args[1]);
+        if (isNaN(v) || v < 0) {
+            return await sendMessage(args[1] + " is not a valid quantity of money to pay.");
+        }
+
+        if (parseInt(character.money) >= v) {
+            character.money = parseInt(character.money) - v;
+            dndIO.writeCharacter(user.id, character);
+
+            return await sendMessage(character.name + " paid " + v + "gp.");
+        } else {
+            return await sendMessage(character.name + " only has " + character.money + "gp. Come back when they're a little, mmmmm, richer.");
+        }
+    }
 }
 
 module.exports.handle = handle;

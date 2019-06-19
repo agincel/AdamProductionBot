@@ -108,6 +108,12 @@ function writeCharacter(id, character) {
     writeUser(id, user);
 }
 
+function writeCharacterAt(id, ind, character) {
+    let user = getUser(id, null);
+    user.characters[ind] = character;
+    writeUser(id, user);
+}
+
 function createEnemy(id, enemyName) {
     let user = getUser(id, null);
     let templateEnemy = JSON.parse(fs.readFileSync(schemaPath + "/enemy.json", "utf8"));
@@ -126,6 +132,14 @@ function getCharacter(id) {
     let user = getUser(id, null);
     if (user.activeCharacter >= 0 && user.characters[user.activeCharacter]) {
         return user.characters[user.activeCharacter];
+    }
+    return null;
+}
+
+function getCharacterAt(id, ind) {
+    let user = getUser(id, null);
+    if (user.characters[ind]) {
+        return user.characters[ind];
     }
     return null;
 }
@@ -186,6 +200,21 @@ function setCharacterStat(id, statName, value) {
     character.stats[chosenStat] = value;
     writeCharacter(id, character);
     return true;
+}
+
+function getCharacterStat(id, statName) {
+    let character = getCharacter(id);
+    if (!character) {
+        return false;
+    }
+
+    let chosenStat = getChosenStat(statName);
+
+    if (!chosenStat) {
+        return false;
+    }
+
+    return character.stats[chosenStat];
 }
 
 function setEnemyStat(id, ind, statName, value) {
@@ -383,7 +412,11 @@ module.exports.createCharacter = createCharacter;
 module.exports.createEnemy = createEnemy;
 module.exports.writeEnemy = writeEnemy;
 module.exports.getCharacter = getCharacter;
+module.exports.getCharacterAt = getCharacterAt;
+module.exports.writeCharacter = writeCharacter;
+module.exports.writeCharacterAt = writeCharacterAt;
 module.exports.getEnemy = getEnemy;
+module.exports.getCharacterStat = getCharacterStat;
 module.exports.setCharacterStat = setCharacterStat;
 module.exports.setEnemyStat = setEnemyStat;
 module.exports.setCharacterTrait = setCharacterTrait;
