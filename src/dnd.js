@@ -20,6 +20,7 @@ function getHelp(prefix) {
     s += prefix + "sheet or " + prefix + "info - Read stats and info about the active character.\n";
     s += prefix + "newcharacter Name - Creates a new character with the given name.\n";
     s += prefix + "setup - Commands to help set or change your character's stats, traits, spells, equipment, etc.\n";
+    s += prefix + "enemySetup - Commands to help create or modify your created enemies for use in campaigns.\n";
 
     return s;
 }
@@ -54,20 +55,20 @@ function getSetup(prefix) {
 function getEnemySetup(prefix) {
     let s = "DnD Character and Enemy Setup Help:\n\n";
     s += prefix + "newEnemy Level HP AC STR DEX CON INT WIS CHA Name - Creates an enemy with all stats. Check https://waveparadigm.dev/dndenemy for a wizard that creates this command for you.\n";
+    s += prefix + "deleteEnemy 0 - Deletes Enemy 0.\n";
     s += prefix + "myEnemies - Returns an indexed list of all of your created enemies.\n";
-    s += prefix + "enemyname 0 Name - set the Active Character's name.\n";
-    s += prefix + "enemylevel 0 5 - set the Active Character's level.\n";
-    s += prefix + "enemyhp 0 25 - set the Active Character's maximum HP.\n";
-    s += prefix + "enemycurrentHp 0 25 - set the Active Character's current HP. Cannot go higher than max. Could also use /heal for this.\n";
-    s += prefix + "enemyac 0 15 - set the Active Character's Armor Class.\n";
-    s += prefix + "enemystr 0 16 - set the Active Character's Strength stat.\n";
-    s += prefix + "enemydex 0 16 - set the Active Character's Dexterity stat.\n";
-    s += prefix + "enemycon 0 16 - set the Active Character's Constitution stat.\n";
-    s += prefix + "enemyint 0 16 - set the Active Character's Intelligence stat.\n";
-    s += prefix + "enemywis 0 16 - set the Active Character's Wisdom stat.\n";
-    s += prefix + "enemycha 0 16 - set the Active Character's Charisma stat.\n";
-    s += prefix + "enemyaddItem - adds an item to the character's inventory list.\n";
-    s += prefix + "enemyRemoveItem - removes the specified item from the item list.\n";
+    s += prefix + "enemyname 0 Name - set enemy 0's name.\n";
+    s += prefix + "enemylevel 0 5 - set enemy 0's level.\n";
+    s += prefix + "enemyhp 0 25 - set enemy 0's maximum HP.\n";
+    s += prefix + "enemycurrentHp 0 25 - set enemy 0's current HP. Cannot go higher than max. Could also use /heal for this.\n";
+    s += prefix + "enemyac 0 15 - set enemy 0's Armor Class.\n";
+    s += prefix + "enemystr 0 16 - set enemy 0's Strength stat.\n";
+    s += prefix + "enemydex 0 16 - set enemy 0's Dexterity stat.\n";
+    s += prefix + "enemyint 0 16 - set enemy 0's Intelligence stat.\n";
+    s += prefix + "enemywis 0 16 - set enemy 0's Wisdom stat.\n";
+    s += prefix + "enemycha 0 16 - set enemy 0's Charisma stat.\n";
+    s += prefix + "enemyaddItem 0 Item - adds an item to enemy 0's inventory list.\n";
+    s += prefix + "enemyRemoveItem 0 0 - removes item 0 from enemy 0's inventory list.\n";
 
     return s;
 }
@@ -105,7 +106,9 @@ async function handle(text, platformObject, args, bots) {
         return await sendMessage(getSetup(prefix));
     } else if (args[0] == "/dmhelp") {
         return await sendMessage(getDmHelp(prefix));
-    } 
+    } else if (args[0] == "/enemysetup") {
+        return await sendMessage(getEnemySetup(prefix));
+    }
     
     //DM COMMANDS
     else if (args[0] == "/dm") {
