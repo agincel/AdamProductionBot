@@ -755,10 +755,10 @@ async function handle(text, platformObject, args, bots) {
                 return await sendMessage("Unable to find " + targetedUser.username + "'s Character at Index " + group.players[targetedUser.id] + ". This shouldn't really happen so reach out to the Developer with this if you could.");
             }
 
-            targetedCharacter.currentHp = Math.max(targetedCharacter.currentHp - damage, 0);
+            targetedCharacter.stats.currentHp = Math.max(targetedCharacter.stats.currentHp - damage, 0);
             dndIO.writeCharacterAt(targetedUser.id, group.players[targetedUser.id], targetedCharacter);
 
-            return await sendMessage(targetedCharacter.name + " took " + damage + " points of damage. " + flavor[getFlavorIndex(targetedCharacter.currentHp / targetedCharacter.hp)]);
+            return await sendMessage(targetedCharacter.name + " took " + damage + " points of damage. " + flavor[getFlavorIndex(targetedCharacter.stats.currentHp / targetedCharacter.stats.hp)]);
         } else {
             let v = parseInt(args[1]); //enemy index
             if (isNaN(v)) {
@@ -774,17 +774,17 @@ async function handle(text, platformObject, args, bots) {
                 return await sendMessage("Unable to find the Enemy at Index " + v);
             }
 
-            targetedEnemy.currentHp = Math.max(targetedEnemy.currentHp - damage, 0);
+            targetedEnemy.stats.currentHp = Math.max(targetedEnemy.stats.currentHp - damage, 0);
             let name = targetedEnemy.name;
 
             let deadS = " (DEAD, DM clear with " + prefix + "removeEnemy)";
-            if (targetedEnemy.currentHp == 0 && targetedEnemy.name.indexOf(deadS) == -1) {
+            if (targetedEnemy.stats.currentHp == 0 && targetedEnemy.name.indexOf(deadS) == -1) {
                 targetedEnemy.name = targetedEnemy.name + deadS;
             }
 
             dndIO.writeGroup(platformObject.server, group);
 
-            return await sendMessage(name + " took " + damage + " points of damage. " + flavor[getFlavorIndex(targetedEnemy.currentHp / targetedEnemy.hp)]);
+            return await sendMessage(name + " took " + damage + " points of damage. " + flavor[getFlavorIndex(targetedEnemy.stats.currentHp / targetedEnemy.stats.hp)]);
         }
     } else if (args[0] == "/heal") {
         if (args < 3) {
@@ -843,10 +843,10 @@ async function handle(text, platformObject, args, bots) {
                 return await sendMessage("Unable to find " + targetedUser.username + "'s Character at Index " + group.players[targetedUser.id] + ". This shouldn't really happen so reach out to the Developer with this if you could.");
             }
 
-            targetedCharacter.currentHp = Math.min(targetedCharacter.currentHp + heal, targetedCharacter.hp);
+            targetedCharacter.stats.currentHp = Math.min(targetedCharacter.stats.currentHp + heal, targetedCharacter.stats.hp);
             dndIO.writeCharacterAt(targetedUser.id, group.players[targetedUser.id], targetedCharacter);
 
-            return await sendMessage(targetedCharacter.name + " healed " + heal + " points of damage. " + flavor[getFlavorIndex(targetedCharacter.currentHp / targetedCharacter.hp)]);
+            return await sendMessage(targetedCharacter.name + " healed " + heal + " points of damage. " + flavor[getFlavorIndex(targetedCharacter.stats.currentHp / targetedCharacter.stats.hp)]);
         } else {
             let v = parseInt(args[1]); //enemy index
             if (isNaN(v)) {
@@ -862,7 +862,7 @@ async function handle(text, platformObject, args, bots) {
                 return await sendMessage("Unable to find the Enemy at Index " + v);
             }
 
-            targetedEnemy.currentHp = Math.min(targetedEnemy.currentHp + heal, targetedEnemy.hp);
+            targetedEnemy.stats.currentHp = Math.min(targetedEnemy.stats.currentHp + heal, targetedEnemy.stats.hp);
             let name = targetedEnemy.name;
 
             let indOf = targetedEnemy.name.indexOf(" (DEAD, DM clear with " + prefix + "removeEnemy)");
@@ -872,7 +872,7 @@ async function handle(text, platformObject, args, bots) {
 
             dndIO.writeGroup(platformObject.server, group);
 
-            return await sendMessage(name + " healed " + heal + " points of damage. " + flavor[getFlavorIndex(targetedEnemy.currentHp / targetedEnemy.hp)]);
+            return await sendMessage(name + " healed " + heal + " points of damage. " + flavor[getFlavorIndex(targetedEnemy.stats.currentHp / targetedEnemy.stats.hp)]);
         }
     } else if (args[0] == "/enemies") {
         let s = "Currently Spawned Enemies:\n\n";
