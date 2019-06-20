@@ -644,14 +644,14 @@ async function handle(text, platformObject, args, bots) {
             return await sendMessage("There was an error. Unless you gave me some weird input, you should let Adam know.");
         }
     } else if (args[0] == "/save") {
-        if (args < 3) {
-            return await sendMessage("USAGE by Players on Enemies: " + args[0] + " 0 STR - Would make Enemy 0 perform a STR save, and return the result.\n\nUSAGE by DM on Players: " + args[0] + " @user STR - Would make @user perform a STR save, and return the result.");
+        let chosenStat = getChosenStat(args[args.length - 1]);
+        if (args.length == 1 || (args.length == 2 && !chosenStat)) {
+            return await sendMessage("USAGE by Players: " + args[0] + "STR - Make a STR save with your own character.\nUSAGE by Players on Enemies: " + args[0] + " 0 STR - Would make Enemy 0 perform a STR save, and return the result.\n\nUSAGE by DM on Players: " + args[0] + " @user STR - Would make @user perform a STR save, and return the result.");
         }
 
         let modifier = 0;
         let name = "";
-
-        let chosenStat = getChosenStat(args[args.length - 1]);
+        
         if (!chosenStat) {
             return await sendMessage(args[args.length - 1] + " is not a valid stat name. Examples: STR, WIS, DEX");
         }
@@ -679,22 +679,32 @@ async function handle(text, platformObject, args, bots) {
             modifier = getModifier(targetedCharacter.stats[chosenStat]);
             name = targetedCharacter.name;
         } else {
-            let v = parseInt(args[1]); //enemy index
-            if (isNaN(v)) {
-                return await sendMessage("Invalid Enemy Index specified. To target the first enemy, use " + args[0] + " 0 " + args[args.length - 1]);
-            }
-            
-            if (v >= group.enemies.length) {
-                return await sendMessage("Invalid Enemy Index specified. View currently active enemies with " + prefix + "enemies");
+            if (args.length == 2) { //rolling save for active character
+                if (character) {
+                    modifier = getModifier(character.stats[chosenStat]);
+                    name = character.name;
+                } else {
+                    return await sendMessage("Unable to make save. Have you created a character?");
+                }
+            } else { //targeting enemy with /save 0 STR syntax
+                let v = parseInt(args[1]); //enemy index
+                if (isNaN(v)) {
+                    return await sendMessage("Invalid Enemy Index specified. To target the first enemy, use " + args[0] + " 0 " + args[args.length - 1]);
+                }
+                
+                if (v >= group.enemies.length) {
+                    return await sendMessage("Invalid Enemy Index specified. View currently active enemies with " + prefix + "enemies");
+                }
+
+                let targetedEnemy = group.enemies[v];
+                if (!targetedEnemy) {
+                    return await sendMessage("Unable to find the Enemy at Index " + v);
+                }
+                    
+                modifier = getModifier(targetedEnemy.stats[chosenStat]);
+                name = targetedEnemy.name;
             }
 
-            let targetedEnemy = group.enemies[v];
-            if (!targetedEnemy) {
-                return await sendMessage("Unable to find the Enemy at Index " + v);
-            }
-
-            modifier = getModifier(targetedEnemy.stats[chosenStat]);
-            name = targetedEnemy.name;
         }
         let roll = Math.floor(Math.random() * 20) + 1;
         let s = name + " rolling a " + chosenStat + " save:\n";
