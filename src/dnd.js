@@ -305,7 +305,7 @@ async function handle(text, platformObject, args, bots) {
         let character = dndIO.getCharacter(user.id);
         character.level = iArgs[0];
         character.stats.hp = iArgs[1];
-        character.stats.currentHp = enemy.stats.hp;
+        character.stats.currentHp = character.stats.hp;
         character.stats.ac = iArgs[2];
         character.stats.strength = iArgs[3];
         character.stats.dexterity = iArgs[4];
@@ -315,7 +315,7 @@ async function handle(text, platformObject, args, bots) {
         character.stats.charisma = iArgs[8];
         
 
-        return await sendMessage(`New Character #${user.enemies.length - 1}: ${name} created.\nRead their info with: ${prefix}sheet after switching to it with ${prefix}character ${user.activeCharacter}\nView ${prefix}setup to use more commands to flesh out this character.`);
+        return await sendMessage(`New Character #${user.activeCharacter}: ${name} created.\nRead their info with: ${prefix}sheet after switching to it with ${prefix}character ${user.activeCharacter}\nView ${prefix}setup to use more commands to flesh out this character.`);
     } else if (args[0] == "/deletecharacter") {
         if (args.length < 2) {
             return await sendMessage("USAGE: " + args[0] + " 0 - Deletes Character 0. Be careful, this is irreversible.");

@@ -1,0 +1,27 @@
+{
+	"dm": "44961843",
+	"enemies": [
+		{
+			"name": "Giant Rat",
+			"level": 1,
+			"stats": {
+				"hp": 22,
+				"currentHp": 22,
+				"ac": 14,
+				"strength": 12,
+				"dexterity": 10,
+				"constitution": 10,
+				"intelligence": 11,
+				"wisdom": 12,
+				"charisma": 6
+			},
+			"inventory": [
+				"15gp"
+			]
+		}
+	],
+	"players": {
+		"44961843": 0
+	},
+	"id": "-252649509"
+}
