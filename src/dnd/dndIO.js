@@ -97,6 +97,7 @@ function getUserByUsername(username) {
     let userKeys = Object.keys(users);
     for (let i = 0; i < userKeys.length; i++) {
         let user = users[userKeys[i]];
+        console.log(user);
 
         if (user.username == username) 
             return user;
