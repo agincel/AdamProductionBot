@@ -174,7 +174,7 @@ TelegramBot.on('message', async (msg) => {
                     "username": u.username ? u.username : u.first_name + (u.last_name ? " " + u.last_name : "")
                 });
             } else if (msg.entities[i].type == "mention") {
-                let u = msg.text.substr(msg.entities[i].offset + 1, msg.entities[i].length);
+                let u = msg.text.substr(msg.entities[i].offset + 1, msg.entities[i].length - 1);
                 console.log(u);
                 let mentionedUser = dndIO.getUserByUsername(u);
                 console.log(mentionedUser);
