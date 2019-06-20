@@ -165,19 +165,25 @@ TelegramBot.on('message', async (msg) => {
             args[0] = args[0].split("@")[0]; //change /command@BotUserName to /command, really should check for equality with username
         
         let mentions = [];
-        console.log(msg.entities);
         for (let i = 0; msg.entities && i < msg.entities.length; i++) {
             if (msg.entities[i].user) {
                 let u = msg.entities[i].user;
-                console.log(u);
                 mentions.push({
                     "id": u.id,
                     "username": u.username ? u.username : u.first_name + (u.last_name ? " " + u.last_name : "")
                 });
+            } else if (msg.entities[i].type == "mention") {
+                let u = msg.text.substr(msg.entities[i].offset + 1, msg.entities[i].length);
+                let mentionedUser = dndIO.getUserByUsername(u);
+                if (mentionedUser) {
+                    mentions.push({
+                        "id": mentionedUser.id,
+                        "username": u
+                    });
+                }
             }
         }
-
-        console.log(mentions);
+        
         let platformObject = {
             platform: "telegram",
             msg: msg,

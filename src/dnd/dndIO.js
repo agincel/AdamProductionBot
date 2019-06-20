@@ -93,6 +93,17 @@ function getUser(id, username) {
     return userData;
 }
 
+function getUserByUsername(username) {
+    let userKeys = Object.keys(users);
+    for (let i = 0; i < userKeys.length; i++) {
+        let user = users[userKeys[i]];
+
+        if (user.username == username) 
+            return user;
+    }
+    return null;
+}
+
 function createCharacter(id, characterName) {
     let user = getUser(id, null);
     let templateCharacter = JSON.parse(fs.readFileSync(schemaPath + "character.json", "utf8"));
@@ -402,6 +413,7 @@ function getGroup(id) {
 
 module.exports.load = load;
 module.exports.getUser = getUser;
+module.exports.getUserByUsername = getUserByUsername;
 module.exports.getGroup = getGroup;
 module.exports.writeUser = writeUser;
 module.exports.writeGroup = writeGroup;
