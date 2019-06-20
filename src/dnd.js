@@ -189,7 +189,7 @@ async function handle(text, platformObject, args, bots) {
         if (group.dm == user.id) {
             //you are the DM
             if (args.length < 2) {
-                return await sendMessage("USAGE: " + args[0] + " 0 - Spawns Enemy 0 from your Enemies List into this group.");
+                return await sendMessage("USAGE: " + args[0] + " 0 - Removes Enemy 0 from this group's Enemy List.");
             }
 
             let v = parseInt(args[1]);
@@ -231,6 +231,10 @@ async function handle(text, platformObject, args, bots) {
             }
         }
 
+        if (user.characters.length == 0) {
+            return await sendMessage("You have not yet created a character. Create one with " + prefix + "newCharacter");
+        }
+
         user.activeCharacter = v;
         dndIO.writeUser(user.id, user);
 
@@ -243,6 +247,10 @@ async function handle(text, platformObject, args, bots) {
         let s = "My Created Characters:\n\n";
         for (let i = 0; i < user.characters.length; i++) {
             s += i.toString() + ": " + user.characters[i].name + "\n";
+        }
+
+        if (user.characters.length == 0) {
+            s += "None! Create your first character with " + prefix + "newCharacter";
         }
 
         return await sendMessage(s);
@@ -398,13 +406,18 @@ async function handle(text, platformObject, args, bots) {
 
     //ENEMY SETUP/INFO COMMANDS
     else if (args[0] == "/enemy") {
+        if (user.enemies.length == 0) {
+            return await sendMessage("You have not created any enemies. You can do so with " + prefix + "newEnemy");
+        }
+
         if (args.length < 2) {
             return await sendMessage("Usage: `" + args[0] + " 0` - Returns Enemy 0. See a list of all enemies with " + prefix + "myEnemies");
         }
+
         let v = parseInt(args[1]);
         if (isNaN(v)) {
             return await sendMessage("Usage: `" + args[0] + " 0` - Returns Enemy 0. See a list of all enemies with " + prefix + "myEnemies")
-        }
+        }   
 
         let enemy = dndIO.getEnemy(user.id, v);
         if (!enemy) {
@@ -434,12 +447,12 @@ async function handle(text, platformObject, args, bots) {
         }
 
         let enemy = dndIO.getEnemy(user.id, 0);
-        let enemyName = "Enemy 0";
         if (enemy) {
-            enemyName = enemy.name;
+            s += "------\n`" + prefix + "enemy 0` would get you info on " + enemy.name + ", etc.";
+        } else {
+            s += "None! Create a new enemy with " + prefix + "newEnemy";
         }
-
-        s += "------\n`" + prefix + "enemy 0` would get you info on " + enemyName + ", etc.";
+        
         return await sendMessage(s);
     } else if (args[0] == "/newenemy") {
         let errorString = "USAGE: " + args[0] + " Level HP AC STR DEX CON INT WIS CHA Name - Creates an enemy with all stats. Check https://waveparadigm.dev/dndenemy for a wizard that creates this command for you.";
@@ -719,7 +732,7 @@ async function handle(text, platformObject, args, bots) {
 
             let targetedCharacter = dndIO.getCharacterAt(targetedUser.id, group.players[targetedUser.id]);
             if (!targetedCharacter) {
-                return await sendMessage("Unable to find " + targetedUser.username + "'s Character at Index " + group.players[targetedUser.id] + ". This shouldn't really happen so reach out to the Developer with this if you could.");
+                return await sendMessage("Unable to find " + targetedUser.username + "'s Character at Index " + group.players[targetedUser.id] + ". Have they created a character with /newCharacter yet?");
             }
 
             ac = targetedCharacter.stats.ac;
