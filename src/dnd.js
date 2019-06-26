@@ -9,6 +9,28 @@ const send = require("./send.js");
 const fs = require("fs");
 const dndIO = require("./dnd/dndIO.js");
 
+const skills = {
+    all: [
+        "/acrobatics", "/animalhandling", "/animal", "/arcana", "/athletics", "/deception", "/history", "/insight", "/intimidation", "/investigation", "/medicine", "/nature",
+        "/perception", "/performance", "/persuasion", "/religion", "/slightofhand", "/slight", "/stealth", "/survival", "/initiative"
+    ],
+    "strength": [
+        "/athletics"
+    ],
+    "dexterity": [
+        "/acrobatics", "/slightofhand", "/slight", "/stealth", "/initiative"
+    ],
+    "intelligence": [
+        "/arcana", "/history", "/investigation", "/nature", "/religion"
+    ],
+    "wisdom": [
+        "/animalhandling", "/animal", "/insight", "/medicine", "/perception", "/survival"
+    ],
+    "charisma": [
+        "/deception", "/intimidation", "/performance", "/persuasion"
+    ]
+}
+
 function getModifier(v) {
     return Math.floor(v / 2) - 5;
 }
@@ -256,7 +278,7 @@ async function handle(text, platformObject, args, bots) {
         return await sendMessage(s);
     } else if (args[0] == "/sheet" || args[0] == "/info") {
         if (!character) {
-            return await sendMessage("You have not created a character yet. Do so with " + prefix + "newcharacter");
+            return await sendMessage("If you have not created a character yet, you can do so with " + prefix + "newcharacter\n\nIf you have, you have not yet set it as your Active Character in this group. Do so with " + prefix + "character X");
         }
 
         let s = "Active Character:\nName: " + character.name + "\n";
@@ -282,7 +304,7 @@ async function handle(text, platformObject, args, bots) {
     } else if (["/traits", "/spells", "/equipment", "/inventory"].indexOf(args[0]) >= 0) {
         let arr = character ? character[args[0].substring(1)] : null;
         if (!arr) {
-            return await sendMessage("Error. Do you not have a character setup yet?");
+            return await sendMessage("If you have not created a character yet, you can do so with " + prefix + "newcharacter\n\nIf you have, you have not yet set it as your Active Character in this group. Do so with " + prefix + "character X");
         }
 
         let s = character.name + "'s " + args[0].charAt(1).toUpperCase() + args[0].substring(2) + ":\n";
@@ -321,6 +343,11 @@ async function handle(text, platformObject, args, bots) {
         character.stats.intelligence = iArgs[6];
         character.stats.wisdom = iArgs[7];
         character.stats.charisma = iArgs[8];
+
+        dndIO.writeCharacter(user.id, character);
+
+        group.players[user.id] = user.activeCharacter;
+        dndIO.writeGroup(group.id, group);
         
 
         return await sendMessage(`New Character #${user.activeCharacter}: ${name} created.\nRead their info with: ${prefix}sheet after switching to it with ${prefix}character ${user.activeCharacter}\nView ${prefix}setup to use more commands to flesh out this character.`);
@@ -345,6 +372,11 @@ async function handle(text, platformObject, args, bots) {
             }
             return await sendMessage("USAGE: `" + args[0] + " value` - Sets the specified character trait to the given value.");
         }
+
+        if (!character) {
+            return await sendMessage("If you have not created a character yet, you can do so with " + prefix + "newcharacter\n\nIf you have, you have not yet set it as your Active Character in this group. Do so with " + prefix + "character X");
+        }
+
         let value = text.substring(args[0].length + 1, text.length);
 
         let result = dndIO.setCharacterTrait(user.id, args[0].substring(1), value);
@@ -363,6 +395,10 @@ async function handle(text, platformObject, args, bots) {
             return await sendMessage("USAGE: `" + args[0] + " value` - Sets the specified stat to the given value.");
         }
 
+        if (!character) {
+            return await sendMessage("If you have not created a character yet, you can do so with " + prefix + "newcharacter\n\nIf you have, you have not yet set it as your Active Character in this group. Do so with " + prefix + "character X");
+        }
+
         let v = parseInt(args[1]);
         if (isNaN(v)) {
             return await sendMessage("Please set that stat to a valid number.");
@@ -378,6 +414,11 @@ async function handle(text, platformObject, args, bots) {
         if (args.length < 2) {
             return await sendMessage("USAGE: `" + args[0] + " value` - Adds the value to the specified list.");
         }
+
+        if (!character) {
+            return await sendMessage("If you have not created a character yet, you can do so with " + prefix + "newcharacter\n\nIf you have, you have not yet set it as your Active Character in this group. Do so with " + prefix + "character X");
+        }
+
         let value = text.substring(args[0].length + 1, text.length);
 
         let result = dndIO.addCharacterList(user.id, args[0], value);
@@ -389,6 +430,10 @@ async function handle(text, platformObject, args, bots) {
     } else if (["/removetrait", "/removeequipment", "/removeequip", "/removespell", "/removeinventory", "/removeitem"].indexOf(args[0]) >= 0) {
         if (args.length < 2) {
             return await sendMessage("USAGE: `" + args[0] + " index` - Removes the item at the given index from the specified list.");
+        }
+
+        if (!character) {
+            return await sendMessage("If you have not created a character yet, you can do so with " + prefix + "newcharacter\n\nIf you have, you have not yet set it as your Active Character in this group. Do so with " + prefix + "character X");
         }
 
         let v = parseInt(args[1]);
@@ -712,6 +757,36 @@ async function handle(text, platformObject, args, bots) {
         s += "\nModifier: " + modifier;
         s += "\n\nFinal save: " + (roll + modifier).toString();
         return await sendMessage(s);
+    } else if (skills.all.indexOf(args[0]) >= 0) {
+        let skillName = "";
+
+        let keys = Object.keys(skills);
+        for (let i = 0; i < keys.length; i++) {
+            let k = keys[i];
+            if (k != "all") {
+                if (skills[k].indexOf(args[0]) >= 0) {
+                    skillName = k;
+                    break;
+                }
+            }
+        }
+
+        if (!skillName) {
+            return await sendMessage("Unable to find skill named " + args[0]);
+        }
+
+        if (!character) {
+            return await sendMessage("If you have not created a character yet, you can do so with " + prefix + "newcharacter\n\nIf you have, you have not yet set it as your Active Character in this group. Do so with " + prefix + "character X");
+        }
+
+        let modifier = getModifier(character.stats[skillName]);
+
+        let roll = Math.floor(Math.random() * 20) + 1;
+        let s = name + " rolling " + args[0].substring(1) + ":\n\n";
+        s += "Rolled a " + roll;
+        s += "\nModifier: " + modifier;
+        s += "\n\nTotal: " + (roll + modifier).toString() + "\n\nManually add proficiency or expertise bonuses, if applicable.";
+        return await sendMessage(s);
     } else if (args[0] == "/hit") {
         if (args < 3) {
             return await sendMessage("USAGE by Players on Enemies: " + args[0] + " 0 15 - Would check if a `15` would hit Enemy 0's AC.\n\nUSAGE by DM on Players: " + args[0] + " @user 15 - Would check if a `15` would hit @user's Active Character's AC.");
@@ -806,7 +881,7 @@ async function handle(text, platformObject, args, bots) {
             "They look unwell.",
             "They look quite bloodied.",
             "Their hit points have dropped to 0."
-        ]
+        ];
 
         //targeting user
         if (platformObject.mentions.length > 0) {
@@ -860,11 +935,11 @@ async function handle(text, platformObject, args, bots) {
             return await sendMessage(name + " took " + damage + " points of damage. " + flavor[getFlavorIndex(targetedEnemy.stats.currentHp / targetedEnemy.stats.hp)]);
         }
     } else if (args[0] == "/heal") {
-        if (args < 3) {
-            return await sendMessage("USAGE by Players on Enemies: " + args[0] + " 0 15 - Would check if a `15` would hit Enemy 0's AC.\n\nUSAGE by DM on Players: " + args[0] + " @user 15 - Would check if a `15` would hit @user's Active Character's AC.");
-        }
-
         let heal = parseInt(args[args.length - 1]);
+        if (args.length == 1 || (args.length == 2 && isNaN(heal))) {
+            return await sendMessage("USAGE by Players: " + args[0] + "X - Heal your own character for X.\nUSAGE by Players on Enemies: " + args[0] + " 0 X - Heals active enemy 0 for X.\n\nUSAGE by DM on Players or Players on Players: " + args[0] + " @user X - Heals @user's character for X.");
+        }
+        
         if (isNaN(heal) || heal < 0) {
             return await sendMessage(args[args.length - 1] + " is not a health quantity. Please use a valid positive integer.");
         }

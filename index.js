@@ -163,6 +163,9 @@ TelegramBot.on('message', async (msg) => {
         let args = msg.text.toLowerCase().split(" ");
         if (args[0].indexOf("@") > -1) 
             args[0] = args[0].split("@")[0]; //change /command@BotUserName to /command, really should check for equality with username
+        if (args[0].startsWith("=")) { //make discord commands work with telegram bc why not
+            args[0] = "/" + args[0].substring(1);
+        }
         
         let mentions = [];
         for (let i = 0; msg.entities && i < msg.entities.length; i++) {
