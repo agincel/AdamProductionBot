@@ -758,7 +758,6 @@ async function handle(text, platformObject, args, bots) {
         s += "\n\nFinal save: " + (roll + modifier).toString();
         return await sendMessage(s);
     } else if (skills.all.indexOf(args[0]) >= 0) {
-        console.log(skills);
         let skillName = "";
 
         let keys = Object.keys(skills);
@@ -783,7 +782,7 @@ async function handle(text, platformObject, args, bots) {
         let modifier = getModifier(character.stats[skillName]);
 
         let roll = Math.floor(Math.random() * 20) + 1;
-        let s = name + " rolling " + args[0].substring(1) + ":\n\n";
+        let s = character.name + " rolling " + args[0].substring(1) + ":\n\n";
         s += "Rolled a " + roll;
         s += "\nModifier: " + modifier;
         s += "\n\nTotal: " + (roll + modifier).toString() + "\n\nManually add proficiency or expertise bonuses, if applicable.";
