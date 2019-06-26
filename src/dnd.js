@@ -10,7 +10,7 @@ const fs = require("fs");
 const dndIO = require("./dnd/dndIO.js");
 
 const skills = {
-    all: [
+    "all": [
         "/acrobatics", "/animalhandling", "/animal", "/arcana", "/athletics", "/deception", "/history", "/insight", "/intimidation", "/investigation", "/medicine", "/nature",
         "/perception", "/performance", "/persuasion", "/religion", "/slightofhand", "/slight", "/stealth", "/survival", "/initiative"
     ],
@@ -29,7 +29,7 @@ const skills = {
     "charisma": [
         "/deception", "/intimidation", "/performance", "/persuasion"
     ]
-}
+};
 
 function getModifier(v) {
     return Math.floor(v / 2) - 5;
@@ -758,6 +758,7 @@ async function handle(text, platformObject, args, bots) {
         s += "\n\nFinal save: " + (roll + modifier).toString();
         return await sendMessage(s);
     } else if (skills.all.indexOf(args[0]) >= 0) {
+        console.log(skills);
         let skillName = "";
 
         let keys = Object.keys(skills);
