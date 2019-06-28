@@ -1044,7 +1044,7 @@ async function handle(text, platformObject, args, bots) {
             return await sendMessage("Could not find any information about " + platformObject.mentions[0].username);
         }
 
-        if (!group.players[targetedUser.id]) {
+        if (group.players[targetedUser.id] == undefined) {
             return await sendMessage("It seems " + platformObject.mentions[0].username + " has not yet participated in this group.");
         }
 
