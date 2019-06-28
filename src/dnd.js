@@ -781,7 +781,12 @@ async function handle(text, platformObject, args, bots) {
 
         let modifier = getModifier(character.stats[skillName]);
 
-        let roll = Math.floor(Math.random() * 20) + 1;
+        let roll = 20 - Math.floor(Math.random() * 20);
+
+        if (roll < 7 && roll > 1) {
+            roll = Math.floor(Math.random() * 20) + 1;
+        }
+
         let s = character.name + " rolling " + args[0].substring(1) + ":\n\n";
         s += "Rolled a " + roll;
         s += "\nModifier: " + modifier;
