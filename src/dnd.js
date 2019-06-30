@@ -706,6 +706,7 @@ async function handle(text, platformObject, args, bots) {
         }
 
         args = t.split(" ");
+        console.log(args);
 
 
         try {
