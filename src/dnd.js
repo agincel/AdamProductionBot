@@ -36,7 +36,7 @@ function getModifier(v) {
 }
 
 function getProficiency(l) {
-    return 1 + Math.ceiling(l / 4);
+    return 1 + Math.ceil(l / 4);
 }
 
 function getChosenStat(statName) {
@@ -873,15 +873,12 @@ async function handle(text, platformObject, args, bots) {
         }
 
         sName = skillFilter(args[0].substring(1));
-        console.log(sName);
         let proficient = false;
         let expert = false;
         for (let i = 0; character.proficiencies != undefined && i < character.proficiencies.length; i++) {
             let p = skillFilter(character.proficiencies[i]);
-            console.log(p);
             if (sName == p) {
                 proficient = true;
-                console.log("Proficient!");
                 break;
             }
         }
