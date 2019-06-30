@@ -698,6 +698,14 @@ async function handle(text, platformObject, args, bots) {
             t += args[i] + " ";
         }
 
+        while (t.indexOf("+ +") >= 0) {
+            t = t.replace("+ +", "+");
+        }
+
+        while (t.indexOf("- -") >= 0) {
+            t = t.replace("- -", "-");
+        }
+
         while (t.indexOf("+ ") >= 0) {
             t = t.replace("+ ", "+");
         }
