@@ -6,3 +6,4 @@ likes/*.json
 blaze.json
 dnd/users/*
 dnd/groups/*
+/dnd/users/*.json
