@@ -52,6 +52,19 @@ function getChosenStat(statName) {
     return chosenStat;
 }
 
+function skillFilter(skillName) {
+    skillName = skillName.toLowerCase();
+    let map = {
+        "slightofhand": "slight",
+        "slight of hand": "slight",
+        "animalhandling": "animal",
+        "animal handling": "animal"
+    };
+    if (map[skillName])
+        return map[skillName];
+    return skillName;
+}
+
 function getHelp(prefix) {
     let s = "DnD Module Help:\n\n";
     s += prefix + "roll - Roll any number of dice with any number of sides. You can add a modifier as well.\n";
@@ -305,7 +318,7 @@ async function handle(text, platformObject, args, bots) {
         s += `Inventory: ${prefix}inventory\n`;
         
         return await sendMessage(s);
-    } else if (["/traits", "/spells", "/equipment", "/inventory"].indexOf(args[0]) >= 0) {
+    } else if (["/traits", "/spells", "/equipment", "/inventory", "/proficiencies", "/expertises"].indexOf(args[0]) >= 0) {
         let arr = character ? character[args[0].substring(1)] : null;
         if (!arr) {
             return await sendMessage("If you have not created a character yet, you can do so with " + prefix + "newcharacter\n\nIf you have, you have not yet set it as your Active Character in this group. Do so with " + prefix + "character X");
@@ -414,7 +427,7 @@ async function handle(text, platformObject, args, bots) {
         } else {
             return await sendMessage(`There was an issue. Please reach out to the developer.`);
         }
-    } else if (["/addtrait", "/addequipment", "/addequip", "/addspell", "/addinventory", "/additem"].indexOf(args[0]) >= 0) {
+    } else if (["/addtrait", "/addequipment", "/addequip", "/addspell", "/addinventory", "/additem", "/addproficiency", "/addexpertise"].indexOf(args[0]) >= 0) {
         if (args.length < 2) {
             return await sendMessage("USAGE: `" + args[0] + " value` - Adds the value to the specified list.");
         }
@@ -857,7 +870,36 @@ async function handle(text, platformObject, args, bots) {
             return await sendMessage("If you have not created a character yet, you can do so with " + prefix + "newcharacter\n\nIf you have, you have not yet set it as your Active Character in this group. Do so with " + prefix + "character X");
         }
 
+        skillName = skillFilter(skillName);
+        let proficient = false;
+        let expert = false;
+        for (let i = 0; character.profiencies != undefined && i < character.proficiencies.length; i++) {
+            let p = skillFilter(character.proficiencies[i]);
+            if (skillName == p) {
+                proficient = true;
+                break;
+            }
+        }       ]
+
+        for (let i = 0; character.expertises != undefined && i < character.expertises.length; i++) {
+            let e = skillFilter(character.proficiencies[i]);
+            if (skillName == e) {
+                expert = true;
+                break;
+            }
+        }
+
+
+
         let modifier = getModifier(character.stats[skillName]);
+        let proficiencyBonus = 0;
+        let expertiseBonus = 0;
+
+        if (proficient)
+            proficiencyBonus = getProficiency(parseInt(character.level));
+        if (expert)
+            expertiseBonus = getProficiency(parseInt(character.level));
+
 
         let roll = 20 - Math.floor(Math.random() * 20);
 
@@ -868,7 +910,9 @@ async function handle(text, platformObject, args, bots) {
         let s = character.name + " rolling " + args[0].substring(1) + ":\n\n";
         s += "Rolled a " + roll;
         s += "\nModifier: " + modifier;
-        s += "\n\nTotal: " + (roll + modifier).toString() + "\n\nManually add proficiency or expertise bonuses, if applicable.";
+        s += (proficient ? "\nProficient! +" + proficiencyBonus : "");
+        s += (expert ? "\nExpertise! +" + expertiseBonus : "");
+        s += "\n\nTotal: " + (roll + modifier + proficiencyBonus + expertiseBonus).toString();
         return await sendMessage(s);
     } else if (args[0] == "/hit") {
         if (args < 3) {

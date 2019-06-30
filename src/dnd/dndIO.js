@@ -84,11 +84,26 @@ function getUser(id, username) {
         writeUser(id, userData);
     }
 
+
     //any new fields not from original schema to add to all objects
     /*if (userData.newField == undefined) {
         userData.newField = 0;
         writeUser(id, userData);
     }*/
+
+    for (let i = 0; i < userData.characters.length; i++) {
+        let c = userData.characters[i];
+        if (c.proficiencies == undefined) {
+            c.proficiencies = [];
+        }
+
+        if (c.expertises == undefined) {
+            c.expertises = [];
+        }
+        userData.characters[i] = c;
+        writeUser(id, userData);
+    }
+
 
     return userData;
 }
@@ -190,7 +205,11 @@ function getChosenList(listCommandName) {
         "/removeequipment": "equipment",
         "/addequip": "equipment",
         "/removeequip": "equipment",
-        "inventory": "inventory"
+        "inventory": "inventory",
+        "/addproficiency": "proficiencies",
+        "/addexpertise": "expertises",
+        "proficiencies": "proficiencies",
+        "expertises": "expertises"
     };
     if (map[listCommandName])
         return map[listCommandName];
