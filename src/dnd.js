@@ -316,6 +316,8 @@ async function handle(text, platformObject, args, bots) {
         s += `Spells: ${prefix}spells\n`;
         s += `Equipment: ${prefix}equipment\n`;
         s += `Inventory: ${prefix}inventory\n`;
+        s += `Proficiencies: ${prefix}proficiencies\n`;
+        s += `Expertises: ${prefix}expertises\n`;
         
         return await sendMessage(s);
     } else if (["/traits", "/spells", "/equipment", "/inventory", "/proficiencies", "/expertises"].indexOf(args[0]) >= 0) {
