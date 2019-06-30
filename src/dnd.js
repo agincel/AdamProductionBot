@@ -875,7 +875,7 @@ async function handle(text, platformObject, args, bots) {
         skillName = skillFilter(skillName);
         let proficient = false;
         let expert = false;
-        for (let i = 0; character.profiencies != undefined && i < character.proficiencies.length; i++) {
+        for (let i = 0; character.proficiencies != undefined && i < character.proficiencies.length; i++) {
             let p = skillFilter(character.proficiencies[i]);
             if (skillName == p) {
                 proficient = true;
@@ -890,8 +890,6 @@ async function handle(text, platformObject, args, bots) {
                 break;
             }
         }
-
-
 
         let modifier = getModifier(character.stats[skillName]);
         let proficiencyBonus = 0;
