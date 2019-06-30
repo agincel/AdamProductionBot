@@ -879,7 +879,7 @@ async function handle(text, platformObject, args, bots) {
                 proficient = true;
                 break;
             }
-        }       ]
+        }
 
         for (let i = 0; character.expertises != undefined && i < character.expertises.length; i++) {
             let e = skillFilter(character.proficiencies[i]);
