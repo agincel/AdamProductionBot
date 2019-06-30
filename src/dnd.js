@@ -872,14 +872,14 @@ async function handle(text, platformObject, args, bots) {
             return await sendMessage("If you have not created a character yet, you can do so with " + prefix + "newcharacter\n\nIf you have, you have not yet set it as your Active Character in this group. Do so with " + prefix + "character X");
         }
 
-        skillName = skillFilter(skillName);
-        console.log(skillName);
+        sName = skillFilter(args[0].substring(1));
+        console.log(sName);
         let proficient = false;
         let expert = false;
         for (let i = 0; character.proficiencies != undefined && i < character.proficiencies.length; i++) {
             let p = skillFilter(character.proficiencies[i]);
             console.log(p);
-            if (skillName == p) {
+            if (sName == p) {
                 proficient = true;
                 console.log("Proficient!");
                 break;
@@ -888,7 +888,7 @@ async function handle(text, platformObject, args, bots) {
 
         for (let i = 0; character.expertises != undefined && i < character.expertises.length; i++) {
             let e = skillFilter(character.proficiencies[i]);
-            if (skillName == e) {
+            if (sName == e) {
                 expert = true;
                 break;
             }
