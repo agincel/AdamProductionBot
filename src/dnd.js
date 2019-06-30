@@ -873,12 +873,15 @@ async function handle(text, platformObject, args, bots) {
         }
 
         skillName = skillFilter(skillName);
+        console.log(skillName);
         let proficient = false;
         let expert = false;
         for (let i = 0; character.proficiencies != undefined && i < character.proficiencies.length; i++) {
             let p = skillFilter(character.proficiencies[i]);
+            console.log(p);
             if (skillName == p) {
                 proficient = true;
+                console.log("Proficient!");
                 break;
             }
         }
