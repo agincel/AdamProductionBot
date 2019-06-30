@@ -21,7 +21,9 @@
 			"spells": [],
 			"equipment": [],
 			"inventory": [],
-			"money": 9100
+			"money": 9100,
+			"proficiencies": [],
+			"expertises": []
 		},
 		{
 			"name": "Myn",
@@ -42,7 +44,9 @@
 			"spells": [],
 			"equipment": [],
 			"inventory": [],
-			"money": "0"
+			"money": "0",
+			"proficiencies": [],
+			"expertises": []
 		}
 	],
 	"enemies": [
