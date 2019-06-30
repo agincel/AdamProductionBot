@@ -17,5 +17,7 @@
     "spells": [],
     "equipment": [],
     "inventory": [],
+    "proficiencies": [],
+    "expertises": [],
     "money": "0"
 }
