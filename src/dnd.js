@@ -674,13 +674,15 @@ async function handle(text, platformObject, args, bots) {
         //replace statnames with appropriate character modifiers
         for (let i = 0; i < args.length; i++) {
             let s = getChosenStat(args[i]);
-            console.log(s);
+            if (!s) {
+                s = getChosenStat(args[i].substring(1));
+            }
+
             if (s) {
                 if (character) {
                     let m = getModifier(character.stats[s]);
                     if (m) {
                         args[i] = "+" + m.toString();
-                        console.log(args[i]);
                     } else {
                         return await sendMessage("Unable to find chosen stat " + args[i]);
                     }
@@ -689,8 +691,6 @@ async function handle(text, platformObject, args, bots) {
                 }
             }
         }
-
-        console.log(args);
 
         //replace /roll 1d20 + 2 + 6 -> /roll 1d20 +2 +6
         let t = "";
@@ -714,8 +714,6 @@ async function handle(text, platformObject, args, bots) {
         }
 
         args = t.split(" ");
-        console.log(args);
-
 
         try {
             let quantity = parseInt(args[1].split("d")[0]);
