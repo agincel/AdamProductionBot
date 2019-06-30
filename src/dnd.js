@@ -674,6 +674,7 @@ async function handle(text, platformObject, args, bots) {
         //replace statnames with appropriate character modifiers
         for (let i = 0; i < args.length; i++) {
             let s = getChosenStat(args[i]);
+            console.log(s);
             if (s) {
                 if (character) {
                     let m = getModifier(character.stats[s]);
@@ -689,7 +690,6 @@ async function handle(text, platformObject, args, bots) {
         }
 
         //replace /roll 1d20 + 2 + 6 -> /roll 1d20 +2 +6
-
         let t = "";
         for (let i = 0; i < args.length; i++) {
             t += args[i] + " ";
