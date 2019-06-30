@@ -680,6 +680,7 @@ async function handle(text, platformObject, args, bots) {
                     let m = getModifier(character.stats[s]);
                     if (m) {
                         args[i] = "+" + m.toString();
+                        console.log(args[i]);
                     } else {
                         return await sendMessage("Unable to find chosen stat " + args[i]);
                     }
@@ -688,6 +689,8 @@ async function handle(text, platformObject, args, bots) {
                 }
             }
         }
+
+        console.log(args);
 
         //replace /roll 1d20 + 2 + 6 -> /roll 1d20 +2 +6
         let t = "";
