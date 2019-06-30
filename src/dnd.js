@@ -35,6 +35,10 @@ function getModifier(v) {
     return Math.floor(v / 2) - 5;
 }
 
+function getProficiency(l) {
+    return 1 + Math.ceiling(l / 4);
+}
+
 function getChosenStat(statName) {
     let stats = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"];
     let chosenStat = null;
@@ -573,6 +577,9 @@ async function handle(text, platformObject, args, bots) {
         }
 
         let result = dndIO.setEnemyStat(user.id, v, args[0].substring("/enemy".length), w);
+        if (args[0].substring("/enemy".length) == "hp") {
+            dndIO.setEnemyStat(user.id, v, "currenthp", w);
+        }
         if (result) {
             return await sendMessage(`Successfully changed ${enemy.name}'s ${args[0].substring("/enemy".length).toUpperCase()} to ${w}`);
         } 
@@ -645,21 +652,82 @@ async function handle(text, platformObject, args, bots) {
     }
 
     //PLAY COMMANDS
-    else if (args[0] == "/roll") {
+    else if (args[0] == "/roll" || /(\/[0-9]+d[0-9]+)/g.test(args[0]) || /(\/d[0-9]+)/g.test(args[0])) {
+
+        if (/(\/[0-9]+d[0-9]+)/g.test(args[0])) { //transform /1d20 shorthand into /roll 1d20
+            let tArgs = [];
+            for (let i = 0; i < args.length; i++) {
+                tArgs[i] = args[i];
+            }
+
+            args[0] = "/roll";
+            args[1] = tArgs[0].substring(1);
+            for (let i = 1; i < tArgs.length; i++) {
+                args[i + 1] = tArgs[i];
+            }
+        }
+
         if (args.length <= 1 || args[1].indexOf("d") < 0) {
             return await sendMessage("Usage: `/roll XdY`, for example: `/roll 2d20`");
         }
+
+        //replace statnames with appropriate character modifiers
+        for (let i = 0; i < args.length; i++) {
+            let s = getChosenStat(args[i]);
+            if (s) {
+                if (character) {
+                    let m = getModifier(character.stats[s]);
+                    if (m) {
+                        args[i] = "+" + m.toString();
+                    } else {
+                        return await sendMessage("Unable to find chosen stat " + args[i]);
+                    }
+                } else {
+                    return await sendMessage("No active character in this group chat. Have you defined one with: " + prefix + "character X?");
+                }
+            }
+        }
+
+        //replace /roll 1d20 + 2 + 6 -> /roll 1d20 +2 +6
+
+        let t = "";
+        for (let i = 0; i < args.length; i++) {
+            t += args[i] + " ";
+        }
+
+        while (t.indexOf("+ ") >= 0) {
+            t.replace("+ ", "+");
+        }
+        while (t.indexOf("- ") >= 0) {
+            t.replace("- ", "-");
+        }
+
+        args = t.split(" ");
+
+
         try {
             let quantity = parseInt(args[1].split("d")[0]);
             let diceSize = parseInt(args[1].split("d")[1]);
             let modifier = 0;
-            if (args.length > 1) {
-                modifier = parseInt(args[2]);
-            if (isNaN(modifier))
+            
+            for (let i = 2; i < args.length; i++) {
+                let m = parseInt(args[i]);
+                if (!isNaN(m)) {
+                    modifier += m;
+                }
+            }
+
+            if (isNaN(modifier)) {
                 modifier = 0;
             }
-            if (isNaN(quantity) || isNaN(diceSize))
-                return await sendMessage("Invalid dice quantity or size.");
+            if (isNaN(quantity)) {
+                quantity = 1;
+            }
+
+            if (isNaN(diceSize))
+                return await sendMessage(args[1] + " contains an invalid dice quantity or size.");
+
+
 
             let results = [];
             let total = 0;
