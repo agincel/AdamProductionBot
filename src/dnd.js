@@ -979,6 +979,7 @@ async function handle(text, platformObject, args, bots) {
             let e = skillFilter(character.proficiencies[i]);
             if (sName == e) {
                 expert = true;
+                proficient = true;
                 break;
             }
         }
