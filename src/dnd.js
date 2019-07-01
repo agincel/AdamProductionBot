@@ -101,10 +101,14 @@ function getSetup(prefix) {
     s += prefix + "addSpell - adds a spell to the character's spell list.\n";
     s += prefix + "addEquipment - adds equipment to the character's equipment list.\n";
     s += prefix + "addItem - adds an item to the character's inventory list.\n";
+    s += prefix + "addProficiency - adds a skill to your character's proficiencies.\n";
+    s += perfix + "addExpertise - adds a skill to your character's expertises.\n";
     s += prefix + "removeTrait - removes the specified trait from the trait list.\n";
     s += prefix + "removeSpell - removes the specified spell from the spell list.\n";
     s += prefix + "removeEquipment - removes the specified equipment from the equipment list.\n";
     s += prefix + "removeItem - removes the specified item from the item list.\n";
+    s += prefix + "removeProficiency - removes the specified proficiency from the list.\n";
+    s += prefix + "removeExpertise - removes the specified expertise from the list.\n";
 
     return s;
 }
