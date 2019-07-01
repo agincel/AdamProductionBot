@@ -169,7 +169,6 @@ async function handle(text, platformObject, args, bots) {
     let prefix = platformObject.platform == "telegram" ? "/" : "=";
     let group = dndIO.getGroup(platformObject.server);
     let user = dndIO.getUser(platformObject.userID, platformObject.name);
-    let character = dndIO.getCharacter(user.id);
 
     //add player to group if not present
     if (group.players[user.id] == undefined) {
@@ -179,6 +178,8 @@ async function handle(text, platformObject, args, bots) {
         user.activeCharacter = group.players[user.id];
         dndIO.writeUser(user.id, user);
     }
+
+    let character = dndIO.getCharacter(user.id);
 
     //HELP MESSAGES
     if (args[0] == "/dnd") {
