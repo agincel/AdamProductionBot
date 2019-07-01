@@ -785,6 +785,76 @@ async function handle(text, platformObject, args, bots) {
             console.log(e);
             return await sendMessage("There was an error. Unless you gave me some weird input, you should let Adam know.");
         }
+    } else if (args[0] == "/adv" || args[0] == "/advantage") {  
+        //replace statnames with appropriate character modifiers
+        for (let i = 0; i < args.length; i++) {
+            let s = getChosenStat(args[i]);
+            if (!s) {
+                s = getChosenStat(args[i].substring(1));
+            }
+
+            if (s) {
+                if (character) {
+                    let m = getModifier(character.stats[s]);
+                    if (m) {
+                        args[i] = "+" + m.toString();
+                    } else {
+                        return await sendMessage("Unable to find chosen stat " + args[i]);
+                    }
+                } else {
+                    return await sendMessage("No active character in this group chat. Have you defined one with: " + prefix + "character X?");
+                }
+            }
+        }
+
+        //fix the whole `+ ` thing.
+        let t = args[0];
+        for (let i = 1; i < args.length; i++) {
+            t += " " + args[i];
+        }
+
+        while (t.indexOf("+ +") >= 0) {
+            t = t.replace("+ +", "+");
+        }
+
+        while (t.indexOf("- -") >= 0) {
+            t = t.replace("- -", "-");
+        }
+
+        while (t.indexOf("+ ") >= 0) {
+            t = t.replace("+ ", "+");
+        }
+        while (t.indexOf("- ") >= 0) {
+            t = t.replace("- ", "-");
+        }
+
+        args = t.split(" ");
+
+        let modifier = 0;
+        for (let i = 1; i < args.length; i++) {
+            let m = parseInt(args[i]);
+            if (!isNaN(m)) {
+                modifier += m;
+            }
+        }
+
+        let r1 = 20 - Math.floor(Math.random() * 20);
+
+        if (r1 < 7 && r1 > 1) {
+            r1 = Math.floor(Math.random() * 20) + 1;
+        }
+
+        let r2 = 20 - Math.floor(Math.random() * 20);
+
+        if (r2 < 7 && r2 > 1) {
+            r2 = Math.floor(Math.random() * 20) + 1;
+        }
+
+        let s = "Rolling 1d20 With Advantage:\n\n";
+        s += "1st Roll: " + r1.toString() + (modifier != 0 ? " + " + modifier.toString() + " = " + (r1 + modifier).toString() : "") + "\n";
+        s += "2nd Roll: " + r2.toString() + (modifier != 0 ? " + " + modifier.toString() + " = " + (r2 + modifier).toString() : "");
+
+        return await sendMessage(s);
     } else if (args[0] == "/save") {
         let chosenStat = getChosenStat(args[args.length - 1]);
         if (args.length == 1 || (args.length == 2 && !chosenStat)) {
