@@ -207,7 +207,9 @@ function getChosenList(listCommandName) {
         "/removeequip": "equipment",
         "inventory": "inventory",
         "/addproficiency": "proficiencies",
+        "/removeproficiency": "proficiencies",
         "/addexpertise": "expertises",
+        "/removeexpertise": "expertises",
         "proficiencies": "proficiencies",
         "expertises": "expertises"
     };

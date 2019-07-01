@@ -450,7 +450,7 @@ async function handle(text, platformObject, args, bots) {
         } else {
             return await sendMessage(`There was an issue. Please reach out to the developer.`);
         }
-    } else if (["/removetrait", "/removeequipment", "/removeequip", "/removespell", "/removeinventory", "/removeitem"].indexOf(args[0]) >= 0) {
+    } else if (["/removetrait", "/removeequipment", "/removeequip", "/removespell", "/removeinventory", "/removeitem", "/removeproficiency", "/removeexpertise"].indexOf(args[0]) >= 0) {
         if (args.length < 2) {
             return await sendMessage("USAGE: `" + args[0] + " index` - Removes the item at the given index from the specified list.");
         }
