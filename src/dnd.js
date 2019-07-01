@@ -862,6 +862,7 @@ async function handle(text, platformObject, args, bots) {
         }
 
         let modifier = 0;
+        let proficiencyBonus = 0;
         let name = "";
         
         if (!chosenStat) {
@@ -889,11 +890,19 @@ async function handle(text, platformObject, args, bots) {
             }
 
             modifier = getModifier(targetedCharacter.stats[chosenStat]);
+
+            if (targetedCharacter.proficiencies.indexOf(chosenStat) >= 0) {
+                proficiencyBonus = getProficiency(parseInt(targetedCharacter.level));
+            }
+
             name = targetedCharacter.name;
         } else {
             if (args.length == 2) { //rolling save for active character
                 if (character) {
                     modifier = getModifier(character.stats[chosenStat]);
+                    if (character.proficiencies.indexOf(chosenStat) >= 0) {
+                        proficiencyBonus = getProficiency(parseInt(character.level));
+                    }
                     name = character.name;
                 } else {
                     return await sendMessage("Unable to make save. Have you created a character?");
@@ -922,7 +931,12 @@ async function handle(text, platformObject, args, bots) {
         let s = name + " rolling a " + chosenStat + " save:\n";
         s += "Rolled a " + roll;
         s += "\nModifier: " + modifier;
-        s += "\n\nFinal save: " + (roll + modifier).toString();
+        
+        if (proficiencyBonus > 0) {
+            s += "\nProficient! +" + proficiencyBonus;
+        }
+
+        s += "\n\nFinal save: " + (roll + modifier + proficiencyBonus).toString();
         return await sendMessage(s);
     } else if (skills.all.indexOf(args[0]) >= 0) {
         let skillName = "";
