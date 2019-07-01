@@ -891,8 +891,10 @@ async function handle(text, platformObject, args, bots) {
 
             modifier = getModifier(targetedCharacter.stats[chosenStat]);
 
-            if (targetedCharacter.proficiencies.indexOf(chosenStat) >= 0) {
-                proficiencyBonus = getProficiency(parseInt(targetedCharacter.level));
+            for (let i = 0; i < targetedCharacter.proficiencies.length; i++) {
+                if (targetedCharacter.proficiencies[i].toLowerCase() == chosenStat) {
+                    proficiencyBonus = getProficiency(parseInt(targetedCharacter.level));
+                }
             }
 
             name = targetedCharacter.name;
@@ -900,8 +902,10 @@ async function handle(text, platformObject, args, bots) {
             if (args.length == 2) { //rolling save for active character
                 if (character) {
                     modifier = getModifier(character.stats[chosenStat]);
-                    if (character.proficiencies.indexOf(chosenStat) >= 0) {
-                        proficiencyBonus = getProficiency(parseInt(character.level));
+                    for (let i = 0; i < character.proficiencies.length; i++) {
+                        if (character.proficiencies[i].toLowerCase() == chosenStat) {
+                            proficiencyBonus = getProficiency(parseInt(character.level));
+                        }
                     }
                     name = character.name;
                 } else {
