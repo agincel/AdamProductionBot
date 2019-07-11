@@ -74,6 +74,9 @@ async function handleMessage(text, platformObject, args) {
     await likes.handle(args, platformObject, platformObject.replyID ? platformObject.msg.reply_to_message.from.id.toString() : null, bots);
     await blaze.handle(text, platformObject, args, bots);
     await dnd.handle(text, platformObject, args, bots);
+    if (platformObject.name == "AdamZG") { //telegram admin
+        await basic.admin(text, platformObject, args, bots);
+    }
 }
 
 

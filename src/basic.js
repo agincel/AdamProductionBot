@@ -105,4 +105,28 @@ async function handle(text, platformObject, args, bots) {
     }
 }
 
+async function admin(text, platformObject, args, bots) {
+    async function sendMessage (text) {
+        return await send.genericSendMessage(text, platformObject, bots);
+    }
+    async function editMessage(text, msg) {
+        return await send.genericEditMessage(text, platformObject, bots, msg);
+    }
+    async function sendTelegramServer(text, chat) {
+        return await send.telegramSendServer(text, chat, bots);
+    }
+
+    if (args[0] == "/send") {
+        if (args.length < 3) {
+            return await sendMessage("Usage: /send chatId Message");
+        }
+
+        let msg = text.substring("/send ".length + args[1].length + 1);
+
+        await sendMessage("Sending:\n\n" + msg);
+        return await sendTelegramServer(msg, args[1]);
+    }
+}
+
 module.exports.handle = handle;
+module.exports.admin = admin;
