@@ -1261,7 +1261,7 @@ async function handle(text, platformObject, args, bots) {
             return await sendMessage("Usage: " + args[0] + " @user 150 - Would give 150gp to @user's active character. If this is from another player, that 150gp will be deducted from their total. " + prefix + "pay 5 - Would simply deduct 5gp from the player's total. Used to buy things in shops.");
         }
 
-        if (args.length >= 3 && platformObject.mentions.length == 0) {
+        if (args.length >= 3 && platformObject.mentions.length > 0) {
             let v = parseInt(args[args.length - 1]);
             if (isNaN(v) || v < 0) {
                 return await sendMessage(args[args.length - 1] + " is not a valid quantity of money to give. Please type a valid integer.");
