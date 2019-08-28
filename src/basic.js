@@ -116,7 +116,10 @@ async function handle(text, platformObject, args, bots) {
 
         let shrunkText = "";
         for (let i = 0; i < msgText.length; i++) {
-            shrunkText += translator[msgText[i]];
+            if (translator[msgText[i]])
+                shrunkText += translator[msgText[i]];
+            else    
+                shrunkText += msgText[i];
         }
 
         return await sendMessage(shrunkText);
