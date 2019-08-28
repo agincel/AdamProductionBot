@@ -103,6 +103,24 @@ async function handle(text, platformObject, args, bots) {
         }
         return await sendMessage(ret);
     }
+    else if (args[0] == "/smalltext") {
+        let msgText = text.substring("/smalltext ".length).toLowerCase();
+
+        let alphabet = "abcdefghijklmnopqrstuvwxyz.?!-,;:|/()";
+        let smallAlphabet = "ᵃᵇᶜᵈᵉᶠᵍʰᶦʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ·ˀᵎ⁻,;:|/⁽⁾";
+
+        let translator = {};
+        for (let i = 0; i < alphabet.length; i++) {
+            translator[alphabet[i]] = smallAlphabet[i];
+        }
+
+        let shrunkText = "";
+        for (let i = 0; i < msgText.length; i++) {
+            shrunkText += translator[msgText[i]];
+        }
+
+        return await sendMessage(shrunkText);
+    }
 }
 
 async function admin(text, platformObject, args, bots) {

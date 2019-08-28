@@ -1216,7 +1216,7 @@ async function handle(text, platformObject, args, bots) {
             dndIO.writeCharacterAt(targetedUser.id, group.players[targetedUser.id], targetedCharacter);
 
             return await sendMessage(targetedCharacter.name + " healed " + heal + " points of damage. " + flavor[getFlavorIndex(targetedCharacter.stats.currentHp / targetedCharacter.stats.hp)]);
-        } else {
+        } else if (args.length > 2) {
             let v = parseInt(args[1]); //enemy index
             if (isNaN(v)) {
                 return await sendMessage("Invalid Enemy Index specified. To target the first enemy, use " + args[0] + " 0 " + args[args.length - 1]);
@@ -1242,6 +1242,12 @@ async function handle(text, platformObject, args, bots) {
             dndIO.writeGroup(platformObject.server, group);
 
             return await sendMessage(name + " healed " + heal + " points of damage. " + flavor[getFlavorIndex(targetedEnemy.stats.currentHp / targetedEnemy.stats.hp)]);
+        } else {
+            //healing yourself
+            character.stats.currentHp = Math.min(character.stats.currentHp + heal, character.stats.hp);
+            dndIO.writeCharacter(user.id, character);
+
+            return await sendMessage(character.name + " healed " + heal + " points of damage. " + flavor[getFlavorIndex(character.stats.currentHp / character.stats.hp)]);
         }
     } else if (args[0] == "/enemies") {
         let s = "Currently Spawned Enemies:\n\n";
@@ -1250,63 +1256,60 @@ async function handle(text, platformObject, args, bots) {
         }
 
         return await sendMessage(s);
-    } else if (args[0] == "/givemoney") {
-        if (args.length < 3 || platformObject.mentions.length == 0) {
-            return await sendMessage("Usage: " + args[0] + " @user 150 - Would give 150gp to @user's active character. If this is from another player, that 150gp will be deducted from their total.");
+    } else if (args[0] == "/pay") {
+        if (args.length < 2) {
+            return await sendMessage("Usage: " + args[0] + " @user 150 - Would give 150gp to @user's active character. If this is from another player, that 150gp will be deducted from their total. " + prefix + "pay 5 - Would simply deduct 5gp from the player's total. Used to buy things in shops.");
         }
 
-        let v = parseInt(args[args.length - 1]);
-        if (isNaN(v) || v < 0) {
-            return await sendMessage(args[args.length - 1] + " is not a valid quantity of money to give. Please type a valid integer.");
-        }
+        if (args.length >= 3 && platformObject.mentions.length == 0) {
+            let v = parseInt(args[args.length - 1]);
+            if (isNaN(v) || v < 0) {
+                return await sendMessage(args[args.length - 1] + " is not a valid quantity of money to give. Please type a valid integer.");
+            }
 
-        let targetedUser = dndIO.getUser(platformObject.mentions[0].id);
-        if (!targetedUser) {
-            return await sendMessage("Could not find any information about " + platformObject.mentions[0].username);
-        }
+            let targetedUser = dndIO.getUser(platformObject.mentions[0].id);
+            if (!targetedUser) {
+                return await sendMessage("Could not find any information about " + platformObject.mentions[0].username);
+            }
 
-        if (group.players[targetedUser.id] == undefined) {
-            return await sendMessage("It seems " + platformObject.mentions[0].username + " has not yet participated in this group.");
-        }
+            if (group.players[targetedUser.id] == undefined) {
+                return await sendMessage("It seems " + platformObject.mentions[0].username + " has not yet participated in this group.");
+            }
 
-        let targetedCharacter = dndIO.getCharacterAt(targetedUser.id, group.players[targetedUser.id]);
-        if (!targetedCharacter) {
-            return await sendMessage("Unable to find the appropriate character belonging to " + targetedUser.username);
-        }
+            let targetedCharacter = dndIO.getCharacterAt(targetedUser.id, group.players[targetedUser.id]);
+            if (!targetedCharacter) {
+                return await sendMessage("Unable to find the appropriate character belonging to " + targetedUser.username);
+            }
 
-        if (group.dm != user.id) {
-            //see if operation is possible. if yes, deduct money
+            if (group.dm != user.id) {
+                //see if operation is possible. if yes, deduct money
+                if (parseInt(character.money) >= v) {
+                    character.money = parseInt(character.money) - v;
+                    dndIO.writeCharacter(user.id, character);
+                } else {
+                    return await sendMessage(character.name + " has " + character.money + "gp - they cannot afford to pay " + v + "gp. Come back when they're a little, mmmmmm, richer.");
+                }
+            }
+
+            targetedCharacter.money = parseInt(targetedCharacter.money) + v;
+            dndIO.writeCharacterAt(targetedUser.id, group.players[targetedUser.id], targetedCharacter);
+
+            let n = (group.dm == user.id) ? "Successfully paid " : character.name + " successfully paid ";
+
+            return await sendMessage(n + targetedCharacter.name + " " + v + "gp.");
+        } else if (args.length == 2) {
+            //pay out of pocket to no one
+            let v = parseInt(args[args.length - 1]);
+            if (isNaN(v) || v < 0) {
+                return await sendMessage(args[args.length - 1] + " is not a valid quantity of money to give. Please type a valid integer.");
+            }
+
             if (parseInt(character.money) >= v) {
                 character.money = parseInt(character.money) - v;
                 dndIO.writeCharacter(user.id, character);
             } else {
-                return await sendMessage(character.name + " has " + character.money + "gp - they cannot afford to give " + v + "gp. Come back when they're a little, mmmmmm, richer.");
+                return await sendMessage(character.name + " has " + character.money + "gp - they cannot afford to pay " + v + "gp. Come back when they're a little, mmmmmm, richer.");
             }
-        } 
-
-        targetedCharacter.money = parseInt(targetedCharacter.money) + v;
-        dndIO.writeCharacterAt(targetedUser.id, group.players[targetedUser.id], targetedCharacter);
-
-        let n = (group.dm == user.id) ? "Successfully paid " : character.name + " successfully paid ";
-
-        return await sendMessage(n + targetedCharacter.name + " " + v + "gp.");
-    } else if (args[0] == "/pay") {
-        if (args.length < 2) {
-            return await sendMessage("USAGE: " + args[0] + " 150 - Deducts 150gp from your money.");
-        }
-
-        let v = parseInt(args[1]);
-        if (isNaN(v) || v < 0) {
-            return await sendMessage(args[1] + " is not a valid quantity of money to pay.");
-        }
-
-        if (parseInt(character.money) >= v) {
-            character.money = parseInt(character.money) - v;
-            dndIO.writeCharacter(user.id, character);
-
-            return await sendMessage(character.name + " paid " + v + "gp.");
-        } else {
-            return await sendMessage(character.name + " only has " + character.money + "gp. Come back when they're a little, mmmmm, richer.");
         }
     }
 }
