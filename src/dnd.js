@@ -1307,6 +1307,7 @@ async function handle(text, platformObject, args, bots) {
             if (parseInt(character.money) >= v) {
                 character.money = parseInt(character.money) - v;
                 dndIO.writeCharacter(user.id, character);
+                return await sendMessage(character.name + " paid " + v + "gp.");
             } else {
                 return await sendMessage(character.name + " has " + character.money + "gp - they cannot afford to pay " + v + "gp. Come back when they're a little, mmmmmm, richer.");
             }
