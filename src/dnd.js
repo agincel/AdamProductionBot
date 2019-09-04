@@ -754,6 +754,10 @@ async function handle(text, platformObject, args, bots) {
                 quantity = 1;
             }
 
+	    if (diceSize < 0 || quantity < 0 || diceSize > 9999 || quantity > 9999) {
+		return await sendMessage("Damn amigops trying to break my stuff I s2g. Please roll a positive number of positively sized dice that isn't too big. Thank you.");
+	    }
+
             if (isNaN(diceSize))
                 return await sendMessage(args[1] + " contains an invalid dice quantity or size.");
 
