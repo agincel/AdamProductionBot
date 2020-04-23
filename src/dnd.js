@@ -90,6 +90,8 @@ function getSetup(prefix) {
     s += prefix + "money - set the Active Character's money.\n";
     s += prefix + "hp - set the Active Character's maximum HP.\n";
     s += prefix + "currentHp - set the Active Character's current HP. Cannot go higher than max. Could also use /heal for this.\n";
+    s += prefix + "sp - set the Active Character's current SP. Could also use /restoresp for this.\n";
+    s += prefix + "maxSp - set the Active Character's Max SP.\n";
     s += prefix + "ac - set the Active Character's Armor Class.\n";
     s += prefix + "str - set the Active Character's Strength stat.\n";
     s += prefix + "dex - set the Active Character's Dexterity stat.\n";
@@ -309,6 +311,7 @@ async function handle(text, platformObject, args, bots) {
         s += `Money: ${character.money}\n\n`;
 
         s += `HP: ${character.stats.currentHp} / ${character.stats.hp}\n`;
+        s += `SP: ${character.stats.sp} / ${character.stats.maxSp}\n`;
         s += `AC: ${character.stats.ac}\n`;
         s += `STR: ${character.stats.strength}\n`;
         s += `DEX: ${character.stats.dexterity}\n`;
@@ -410,7 +413,7 @@ async function handle(text, platformObject, args, bots) {
         } else {
             return await sendMessage(`There was an issue. Please contact the developer.`);
         }
-    } else if (["/hp", "/currenthp", "/ac", "/str", "/strength", "/dex", "/dexterity", "/con", "/cons", "/constitution", "/int", "/intelligence", "/wis", "/wisdom", "/cha", "/charisma"].indexOf(args[0]) >= 0) {
+    } else if (["/hp", "/currenthp", "/ac", "/str", "/strength", "/dex", "/dexterity", "/con", "/cons", "/constitution", "/int", "/intelligence", "/wis", "/wisdom", "/cha", "/charisma", "/sp", "/maxsp"].indexOf(args[0]) >= 0) {
         if (args.length < 2) {
             let stat = dndIO.getCharacterStat(user.id, args[0].substring(1));
             if (stat !== false) {
@@ -755,7 +758,7 @@ async function handle(text, platformObject, args, bots) {
             }
 
 	    if (diceSize < 0 || quantity < 0 || diceSize > 9999 || quantity > 9999) {
-		return await sendMessage("Damn amigops trying to break my stuff I s2g. Please roll a positive number of positively sized dice that isn't too big. Thank you.");
+		    return await sendMessage("Please roll a positive number of positively sized dice that isn't too big. Thank you.");
 	    }
 
             if (isNaN(diceSize))
@@ -1252,6 +1255,47 @@ async function handle(text, platformObject, args, bots) {
             dndIO.writeCharacter(user.id, character);
 
             return await sendMessage(character.name + " healed " + heal + " points of damage. " + flavor[getFlavorIndex(character.stats.currentHp / character.stats.hp)]);
+        }
+    } else if (args[0] == "/restoresp") {
+        let heal = parseInt(args[args.length - 1]);
+        if (args.length == 1 || (args.length == 2 && isNaN(heal))) {
+            return await sendMessage("USAGE by Players: " + args[0] + "X - Restore your own character's SP by X.\nUSAGE by DM on Players or Players on Players: " + args[0] + " @user X - Heals @user's character for X.");
+        }
+        
+        if (isNaN(heal) || heal < 0) {
+            return await sendMessage(args[args.length - 1] + " is not a valid SP quantity. Please use a valid positive integer.");
+        }
+
+        //targeting user
+        if (platformObject.mentions.length > 0) {
+            let targetedUser = dndIO.getUser(platformObject.mentions[0].id, null);
+            if (!targetedUser) {
+                return await sendMessage("I do not have any stored information about " + platformObject.mentions[0].username);
+            }
+
+            if (group.players[targetedUser.id] == undefined) {
+                return await sendMessage(targetedUser.username + " has not yet posted in this chat, and/or has not set their Active Player Character in this chat by using the " + prefix + "character command.");
+            }
+
+            if (targetedUser.id == group.dm) {
+                return await sendMessage("You cannot target the DM directly.");
+            }
+
+            let targetedCharacter = dndIO.getCharacterAt(targetedUser.id, group.players[targetedUser.id]);
+            if (!targetedCharacter) {
+                return await sendMessage("Unable to find " + targetedUser.username + "'s Character at Index " + group.players[targetedUser.id] + ". This shouldn't really happen so reach out to the Developer with this if you could.");
+            }
+
+            targetedCharacter.stats.sp = Math.min(targetedCharacter.stats.sp + heal, targetedCharacter.stats.maxSp);
+            dndIO.writeCharacterAt(targetedUser.id, group.players[targetedUser.id], targetedCharacter);
+
+            return await sendMessage(targetedCharacter.name + " restored " + heal + " SP. They are now at " + targetedCharacter.stats.sp + " SP.");
+        } else {
+            //healing yourself
+            character.stats.sp = Math.min(character.stats.sp + heal, character.stats.maxSp);
+            dndIO.writeCharacter(user.id, character);
+
+            return await sendMessage(character.name + " restored " + heal + " SP. They are now at " + character.stats.sp + " SP.");
         }
     } else if (args[0] == "/enemies") {
         let s = "Currently Spawned Enemies:\n\n";

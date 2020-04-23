@@ -5,6 +5,8 @@
     "stats": {
         "hp": 20,
         "currentHp": 20,
+        "sp": 10,
+        "maxSp": 10,
         "ac": 12,
         "strength": 10,
         "dexterity": 10,

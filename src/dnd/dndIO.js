@@ -100,6 +100,14 @@ function getUser(id, username) {
         if (c.expertises == undefined) {
             c.expertises = [];
         }
+
+        if (c.stats.sp == undefined) {
+            c.stats.sp = 0;
+        }
+
+        if (c.stats.maxSp == undefined) {
+            c.stats.maxSp = 0;
+        }
         userData.characters[i] = c;
         writeUser(id, userData);
     }
