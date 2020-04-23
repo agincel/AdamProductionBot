@@ -675,7 +675,7 @@ async function handle(text, platformObject, args, bots) {
     }
 
     //PLAY COMMANDS
-    else if (args[0] == "/roll" || /(\/[0-9]+d[0-9]+)/g.test(args[0]) || /(\/d[0-9]+)/g.test(args[0])) {
+    else if (args[0] == "/roll" || ((/(\/[0-9]+d[0-9]+)/g.test(args[0]) || /(\/d[0-9]+)/g.test(args[0])) && args[0].startsWith("/"))) {
 
         if (/(\/[0-9]+d[0-9]+)/g.test(args[0]) || /(\/d[0-9]+)/g.test(args[0])) { //transform /1d20 shorthand into /roll 1d20
             let tArgs = [];
