@@ -187,7 +187,7 @@ function getEnemy(id, ind) {
 }
 
 function getChosenStat(statName) {
-    let stats = ["hp", "currentHp", "ac", "strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"];
+    let stats = ["hp", "currentHp", "ac", "strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma", "sp", "maxsp"];
     let chosenStat = "";
     for (let i = 0; i < stats.length; i++) {
         if (statName.length >= 2 && stats[i].toLowerCase().startsWith(statName.toLowerCase())) {
