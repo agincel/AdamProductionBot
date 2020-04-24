@@ -31,6 +31,28 @@ const skills = {
     ]
 };
 
+const personaSpells = [
+    {name: "zio", cost: 3, dice: "2d6 + wisdom"},
+    {name: "agi", cost: 4, dice: "2d8 + wisdom"},
+    {name: "garu", cost: 3, dice: "3d4 + wisdom"},
+    {name: "bufu", cost: 4, dice: "4d4 + wisdom"},
+    {name: "frei", cost: 5, dice: "1d20 + wisdom"},
+    {name: "psi", cost: 5, dice: "3d6 + wisdom"},
+    {name: "kouha", cost: 3, dice: "1d10 + wisdom"},
+    {name: "eiha", cost: 6, dice: "2d12 + wisdom"},
+    {name: "lunge", cost: 2, dice: "1d10 + strength"},
+    {name: "cleave", cost: 3, dice: "2d6 + strength"},
+    {name: "dia", cost: 4, dice: "2d4 + wisdom"},
+    {name: "tarukaja", cost: 7},
+    {name: "rakukaja", cost: 6},
+    {name: "tarunda", cost: 7},
+    {name: "rakunda", cost: 7}
+];
+const personaSpellNames = [];
+for (let ps of personaSpells) {
+    personaSpellNames.push("/" + ps.name);
+}
+
 function getModifier(v) {
     return Math.floor(v / 2) - 5;
 }
@@ -1360,6 +1382,31 @@ async function handle(text, platformObject, args, bots) {
                 return await sendMessage(character.name + " has " + character.money + "gp - they cannot afford to pay " + v + "gp. Come back when they're a little, mmmmmm, richer.");
             }
         }
+    } else if (personaSpellNames.indexOf(args[0] != -1)) {
+        let spell = null;
+        for (let ps of personaSpells) {
+            if ("/" + ps.name == args[0]) {
+                spell = ps;
+                break;
+            }
+        }
+        if (spell == null) {
+            return await sendMessage("Uh, couldn't find that spell? Even though I know it's a spell somehow? Ask Adam.");
+        }
+        character.stats.sp = parseInt(character.stats.sp);
+        let spellTitle = spell.name[0].toUpperCase() + spell.name.substr(1);
+
+        if (character.stats.sp < spell.cost) {
+            return await sendMessage(character.name + " only has " + character.stats.sp + " SP - not enough to cast " + spellTitle + ". (" + spell.cost + ")");
+        }
+
+        character.stats.sp = character.stats.sp - spell.cost;
+        if (spell.dice) {
+            //todo
+        }
+
+        dndIO.writeCharacter(user.id, character);
+        return await sendMessage(character.name + " cast " + spellTitle + ". They have " + character.stats.sp + " SP remaining.");
     }
 }
 
