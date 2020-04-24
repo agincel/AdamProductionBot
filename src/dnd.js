@@ -191,7 +191,7 @@ async function handle(text, platformObject, args, bots) {
         return await send.genericEditMessage(text, platformObject, bots, msg);
     }
 
-    async function handleRoll(rollArgs) {
+    async function handleRoll(rollArgs, char) {
         if (/(\/[0-9]+d[0-9]+)/g.test(rollArgs[0]) || /(\/d[0-9]+)/g.test(rollArgs[0])) { //transform /1d20 shorthand into /roll 1d20
             let tArgs = [];
             for (let i = 0; i < args.length; i++) {
@@ -217,15 +217,15 @@ async function handle(text, platformObject, args, bots) {
             }
 
             if (s) {
-                if (character) {
-                    let m = getModifier(character.stats[s]);
+                if (char) {
+                    let m = getModifier(char.stats[s]);
                     if (m) {
                         rollArgs[i] = "+" + m.toString();
                     } else {
                         return "Unable to find chosen stat " + rollArgs[i]; //return await sendMessage("Unable to find chosen stat " + rollArgs[i]);
                     }
                 } else {
-                    return "No active character in this group chat. Have you defined one with: " + prefix + "character X?";  //return await sendMessage("No active character in this group chat. Have you defined one with: " + prefix + "character X?");
+                    return "No active character in this group chat. Have you defined one with: `" + prefix + "character X`?";  //return await sendMessage("No active character in this group chat. Have you defined one with: " + prefix + "character X?");
                 }
             }
         }
@@ -819,7 +819,7 @@ async function handle(text, platformObject, args, bots) {
 
     //PLAY COMMANDS
     else if (args[0] == "/roll" || ((/(\/[0-9]+d[0-9]+)/g.test(args[0]) || /(\/d[0-9]+)/g.test(args[0])) && args[0].startsWith("/"))) {
-        return await sendMessage(await handleRoll(args));
+        return await sendMessage(await handleRoll(args, character));
     } else if (args[0] == "/adv" || args[0] == "/advantage") {  
         //replace statnames with appropriate character modifiers
         for (let i = 0; i < args.length; i++) {
@@ -1408,7 +1408,7 @@ async function handle(text, platformObject, args, bots) {
         character.stats.sp = character.stats.sp - spell.cost;
         let diceMessage = "";
         if (spell.dice) {
-            diceMessage = await handleRoll(("/" + spell.dice).split(" "));
+            diceMessage = await handleRoll(("/" + spell.dice).split(" "), character);
         }
 
         dndIO.writeCharacter(user.id, character);
