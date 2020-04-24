@@ -1382,7 +1382,7 @@ async function handle(text, platformObject, args, bots) {
                 return await sendMessage(character.name + " has " + character.money + "gp - they cannot afford to pay " + v + "gp. Come back when they're a little, mmmmmm, richer.");
             }
         }
-    } else if (personaSpellNames.indexOf(args[0] != -1)) {
+    } else if (personaSpellNames.indexOf(args[0]) != -1) {
         let spell = null;
         for (let ps of personaSpells) {
             if ("/" + ps.name == args[0]) {
