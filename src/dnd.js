@@ -192,6 +192,8 @@ async function handle(text, platformObject, args, bots) {
     }
 
     async function handleRoll(rollArgs, char) {
+        console.log(rollArgs);
+        console.log(char);
         if (/(\/[0-9]+d[0-9]+)/g.test(rollArgs[0]) || /(\/d[0-9]+)/g.test(rollArgs[0])) { //transform /1d20 shorthand into /roll 1d20
             let tArgs = [];
             for (let i = 0; i < args.length; i++) {
@@ -204,6 +206,7 @@ async function handle(text, platformObject, args, bots) {
                 rollArgs[i + 1] = tArgs[i];
             }
         }
+        console.log(rollArgs);
 
         if (rollArgs.length <= 1 || rollArgs[1].indexOf("d") < 0) {
             return "Usage: `/roll XdY`, for example: `/roll 2d20`";//return await sendMessage("Usage: `/roll XdY`, for example: `/roll 2d20`");
@@ -211,14 +214,20 @@ async function handle(text, platformObject, args, bots) {
 
         //replace statnames with appropriate character modifiers
         for (let i = 0; i < rollArgs.length; i++) {
+            console.log(rollArgs[i]);
             let s = getChosenStat(rollArgs[i]);
+            console.log(s);
             if (!s) {
                 s = getChosenStat(rollArgs[i].substring(1));
             }
+            console.log(s);
 
             if (s) {
+                console.log("s not null.");
                 if (char) {
+                    console.log("char not null");
                     let m = getModifier(char.stats[s]);
+                    console.log(m);
                     if (m) {
                         rollArgs[i] = "+" + m.toString();
                     } else {
