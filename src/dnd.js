@@ -32,21 +32,21 @@ const skills = {
 };
 
 const personaSpells = [
-    {name: "zio", cost: 3, dice: "2d6 + wisdom"},
-    {name: "agi", cost: 4, dice: "2d8 + wisdom"},
-    {name: "garu", cost: 3, dice: "3d4 + wisdom"},
-    {name: "bufu", cost: 4, dice: "4d4 + wisdom"},
-    {name: "frei", cost: 5, dice: "1d20 + wisdom"},
-    {name: "psi", cost: 5, dice: "3d6 + wisdom"},
-    {name: "kouha", cost: 3, dice: "1d10 + wisdom"},
-    {name: "eiha", cost: 6, dice: "2d12 + wisdom"},
-    {name: "lunge", cost: 2, dice: "1d10 + strength"},
-    {name: "cleave", cost: 3, dice: "2d6 + strength"},
-    {name: "dia", cost: 4, dice: "2d4 + wisdom"},
-    {name: "tarukaja", cost: 7},
-    {name: "rakukaja", cost: 6},
-    {name: "tarunda", cost: 7},
-    {name: "rakunda", cost: 7}
+    {name: "zio",       cost: 3,        dice: "2d6 +wisdom"},
+    {name: "agi",       cost: 4,        dice: "2d8 +wisdom"},
+    {name: "garu",      cost: 3,        dice: "3d4 +wisdom"},
+    {name: "bufu",      cost: 4,        dice: "4d4 +wisdom"},
+    {name: "frei",      cost: 5,        dice: "1d20 +wisdom"},
+    {name: "psi",       cost: 5,        dice: "3d6 +wisdom"},
+    {name: "kouha",     cost: 3,        dice: "1d10 +wisdom"},
+    {name: "eiha",      cost: 6,        dice: "2d12 +wisdom"},
+    {name: "lunge",     cost: 2,        dice: "1d10 +strength"},
+    {name: "cleave",    cost: 3,        dice: "2d6 +strength"},
+    {name: "dia",       cost: 4,        dice: "2d4 +wisdom"},
+    {name: "tarukaja",  cost: 7},
+    {name: "rakukaja",  cost: 6},
+    {name: "tarunda",   cost: 7},
+    {name: "rakunda",   cost: 7}
 ];
 const personaSpellNames = [];
 for (let ps of personaSpells) {
@@ -190,6 +190,127 @@ async function handle(text, platformObject, args, bots) {
     async function editMessage(text, msg) {
         return await send.genericEditMessage(text, platformObject, bots, msg);
     }
+
+    async function handleRoll(rollArgs) {
+        if (/(\/[0-9]+d[0-9]+)/g.test(rollArgs[0]) || /(\/d[0-9]+)/g.test(rollArgs[0])) { //transform /1d20 shorthand into /roll 1d20
+            let tArgs = [];
+            for (let i = 0; i < args.length; i++) {
+                tArgs[i] = rollArgs[i];
+            }
+
+            rollArgs[0] = "/roll";
+            rollArgs[1] = tArgs[0].substring(1);
+            for (let i = 1; i < tArgs.length; i++) {
+                rollArgs[i + 1] = tArgs[i];
+            }
+        }
+
+        if (rollArgs.length <= 1 || rollArgs[1].indexOf("d") < 0) {
+            return "Usage: `/roll XdY`, for example: `/roll 2d20`";//return await sendMessage("Usage: `/roll XdY`, for example: `/roll 2d20`");
+        }
+
+        //replace statnames with appropriate character modifiers
+        for (let i = 0; i < rollArgs.length; i++) {
+            let s = getChosenStat(rollArgs[i]);
+            if (!s) {
+                s = getChosenStat(rollArgs[i].substring(1));
+            }
+
+            if (s) {
+                if (character) {
+                    let m = getModifier(character.stats[s]);
+                    if (m) {
+                        rollArgs[i] = "+" + m.toString();
+                    } else {
+                        return "Unable to find chosen stat " + rollArgs[i]; //return await sendMessage("Unable to find chosen stat " + rollArgs[i]);
+                    }
+                } else {
+                    return "No active character in this group chat. Have you defined one with: " + prefix + "character X?";  //return await sendMessage("No active character in this group chat. Have you defined one with: " + prefix + "character X?");
+                }
+            }
+        }
+
+        //replace /roll 1d20 + 2 + 6 -> /roll 1d20 +2 +6
+        let t = "";
+        for (let i = 0; i < rollArgs.length; i++) {
+            t += rollArgs[i] + " ";
+        }
+
+        while (t.indexOf("+ +") >= 0) {
+            t = t.replace("+ +", "+");
+        }
+
+        while (t.indexOf("- -") >= 0) {
+            t = t.replace("- -", "-");
+        }
+
+        while (t.indexOf("+ ") >= 0) {
+            t = t.replace("+ ", "+");
+        }
+        while (t.indexOf("- ") >= 0) {
+            t = t.replace("- ", "-");
+        }
+
+        rollArgs = t.split(" ");
+
+        try {
+            let quantity = parseInt(rollArgs[1].split("d")[0]);
+            let diceSize = parseInt(rollArgs[1].split("d")[1]);
+            let modifier = 0;
+            
+            for (let i = 2; i < rollArgs.length; i++) {
+                let m = parseInt(rollArgs[i]);
+                if (!isNaN(m)) {
+                    modifier += m;
+                }
+            }
+
+            if (isNaN(modifier)) {
+                modifier = 0;
+            }
+            if (isNaN(quantity)) {
+                quantity = 1;
+            }
+
+            if (diceSize < 0 || quantity < 0 || diceSize > 9999 || quantity > 9999) {
+                return "Please roll a positive number of positively sized dice that isn't too big. Thank you.";  //return await sendMessage("Please roll a positive number of positively sized dice that isn't too big. Thank you.");
+            }
+
+            if (isNaN(diceSize))
+                return rollArgs[1] + " contains an invalid dice quantity or size."; //return await sendMessage(rollArgs[1] + " contains an invalid dice quantity or size.");
+
+
+
+            let results = [];
+            let total = 0;
+            for (let i = 0; i < Math.abs(quantity); i++) {
+                let roll = Math.floor(Math.random() * diceSize) + 1;
+                total += roll;
+                results.push(roll);
+            }
+            let ret = "```\nRolling " + quantity.toString() + "d" + diceSize.toString() + (quantity == 1 ? "" : "s") + ":\n";
+            let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            for (let i = 0; i < results.length && results.length < 120; i++) {
+                ret += "Die " + alphabet[i % 26] + ": " + results[i].toString() + "\n";
+            }
+            ret += "-----\n";
+            ret += "Total: " + total.toString();
+            total += modifier;
+            if (modifier > 0) {
+                ret += "\n-----\n+" + modifier.toString() + " = " + total.toString();
+            } else if (modifier < 0) {
+                ret += "\n-----\n" + modifier.toString() + " = " + total.toString();
+            }
+
+	        ret += "\n```";
+            return ret; //return await sendMessage(ret);
+        } catch (e) {
+            console.log(e);
+            return "There was an error. Unless you gave me some weird input, you should let Adam know."; //await sendMessage("There was an error. Unless you gave me some weird input, you should let Adam know.");
+        }
+    }
+
+
     let prefix = platformObject.platform == "telegram" ? "/" : "=";
     let group = dndIO.getGroup(platformObject.server);
     let user = dndIO.getUser(platformObject.userID, platformObject.name);
@@ -698,123 +819,7 @@ async function handle(text, platformObject, args, bots) {
 
     //PLAY COMMANDS
     else if (args[0] == "/roll" || ((/(\/[0-9]+d[0-9]+)/g.test(args[0]) || /(\/d[0-9]+)/g.test(args[0])) && args[0].startsWith("/"))) {
-
-        if (/(\/[0-9]+d[0-9]+)/g.test(args[0]) || /(\/d[0-9]+)/g.test(args[0])) { //transform /1d20 shorthand into /roll 1d20
-            let tArgs = [];
-            for (let i = 0; i < args.length; i++) {
-                tArgs[i] = args[i];
-            }
-
-            args[0] = "/roll";
-            args[1] = tArgs[0].substring(1);
-            for (let i = 1; i < tArgs.length; i++) {
-                args[i + 1] = tArgs[i];
-            }
-        }
-
-        if (args.length <= 1 || args[1].indexOf("d") < 0) {
-            return await sendMessage("Usage: `/roll XdY`, for example: `/roll 2d20`");
-        }
-
-        //replace statnames with appropriate character modifiers
-        for (let i = 0; i < args.length; i++) {
-            let s = getChosenStat(args[i]);
-            if (!s) {
-                s = getChosenStat(args[i].substring(1));
-            }
-
-            if (s) {
-                if (character) {
-                    let m = getModifier(character.stats[s]);
-                    if (m) {
-                        args[i] = "+" + m.toString();
-                    } else {
-                        return await sendMessage("Unable to find chosen stat " + args[i]);
-                    }
-                } else {
-                    return await sendMessage("No active character in this group chat. Have you defined one with: " + prefix + "character X?");
-                }
-            }
-        }
-
-        //replace /roll 1d20 + 2 + 6 -> /roll 1d20 +2 +6
-        let t = "";
-        for (let i = 0; i < args.length; i++) {
-            t += args[i] + " ";
-        }
-
-        while (t.indexOf("+ +") >= 0) {
-            t = t.replace("+ +", "+");
-        }
-
-        while (t.indexOf("- -") >= 0) {
-            t = t.replace("- -", "-");
-        }
-
-        while (t.indexOf("+ ") >= 0) {
-            t = t.replace("+ ", "+");
-        }
-        while (t.indexOf("- ") >= 0) {
-            t = t.replace("- ", "-");
-        }
-
-        args = t.split(" ");
-
-        try {
-            let quantity = parseInt(args[1].split("d")[0]);
-            let diceSize = parseInt(args[1].split("d")[1]);
-            let modifier = 0;
-            
-            for (let i = 2; i < args.length; i++) {
-                let m = parseInt(args[i]);
-                if (!isNaN(m)) {
-                    modifier += m;
-                }
-            }
-
-            if (isNaN(modifier)) {
-                modifier = 0;
-            }
-            if (isNaN(quantity)) {
-                quantity = 1;
-            }
-
-	    if (diceSize < 0 || quantity < 0 || diceSize > 9999 || quantity > 9999) {
-		    return await sendMessage("Please roll a positive number of positively sized dice that isn't too big. Thank you.");
-	    }
-
-            if (isNaN(diceSize))
-                return await sendMessage(args[1] + " contains an invalid dice quantity or size.");
-
-
-
-            let results = [];
-            let total = 0;
-            for (let i = 0; i < Math.abs(quantity); i++) {
-                let roll = Math.floor(Math.random() * diceSize) + 1;
-                total += roll;
-                results.push(roll);
-            }
-            let ret = "```\nRolling " + quantity.toString() + "d" + diceSize.toString() + (quantity == 1 ? "" : "s") + ":\n";
-            let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            for (let i = 0; i < results.length && results.length < 120; i++) {
-                ret += "Die " + alphabet[i % 26] + ": " + results[i].toString() + "\n";
-            }
-            ret += "-----\n";
-            ret += "Total: " + total.toString();
-            total += modifier;
-            if (modifier > 0) {
-                ret += "\n-----\n+" + modifier.toString() + " = " + total.toString();
-            } else if (modifier < 0) {
-                ret += "\n-----\n" + modifier.toString() + " = " + total.toString();
-            }
-
-	        ret += "\n```";
-            return await sendMessage(ret);
-        } catch (e) {
-            console.log(e);
-            return await sendMessage("There was an error. Unless you gave me some weird input, you should let Adam know.");
-        }
+        return await sendMessage(await handleRoll(args));
     } else if (args[0] == "/adv" || args[0] == "/advantage") {  
         //replace statnames with appropriate character modifiers
         for (let i = 0; i < args.length; i++) {
@@ -1401,12 +1406,17 @@ async function handle(text, platformObject, args, bots) {
         }
 
         character.stats.sp = character.stats.sp - spell.cost;
+        let diceMessage = "";
         if (spell.dice) {
-            //todo
+            diceMessage = await handleRoll("/" + spell.dice);
         }
 
         dndIO.writeCharacter(user.id, character);
-        return await sendMessage(character.name + " cast " + spellTitle + " for " + spell.cost + " SP. They have " + character.stats.sp + " SP remaining.");
+        let ret = character.name + " cast " + spellTitle + " for " + spell.cost + " SP. They have " + character.stats.sp + " SP remaining.";
+        if (diceMessage) {
+            ret += "\n\n" + diceMessage;
+        }
+        return await sendMessage(ret);
     }
 }
 
