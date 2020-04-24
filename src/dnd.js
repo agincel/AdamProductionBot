@@ -1397,7 +1397,7 @@ async function handle(text, platformObject, args, bots) {
         let spellTitle = spell.name[0].toUpperCase() + spell.name.substr(1);
 
         if (character.stats.sp < spell.cost) {
-            return await sendMessage(character.name + " only has " + character.stats.sp + " SP - not enough to cast " + spellTitle + ". (" + spell.cost + ")");
+            return await sendMessage(character.name + " only has " + character.stats.sp + " SP - not enough to cast " + spellTitle + ". (" + spell.cost + " SP)");
         }
 
         character.stats.sp = character.stats.sp - spell.cost;
@@ -1406,7 +1406,7 @@ async function handle(text, platformObject, args, bots) {
         }
 
         dndIO.writeCharacter(user.id, character);
-        return await sendMessage(character.name + " cast " + spellTitle + ". They have " + character.stats.sp + " SP remaining.");
+        return await sendMessage(character.name + " cast " + spellTitle + " for " + spell.cost + " SP. They have " + character.stats.sp + " SP remaining.");
     }
 }
 
