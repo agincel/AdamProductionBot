@@ -1417,7 +1417,7 @@ async function handle(text, platformObject, args, bots) {
         character.stats.sp = character.stats.sp - spell.cost;
         let diceMessage = "";
         if (spell.dice) {
-            diceMessage = await handleRoll(("/" + spell.dice).split(" "), character);
+            diceMessage = await handleRoll(("/roll " + spell.dice).split(" "), character);
         }
 
         dndIO.writeCharacter(user.id, character);
