@@ -32,6 +32,7 @@ const skills = {
 };
 
 const personaSpells = [
+    {name: "attack",    cost: 0,        dice: "1d6 +strength"},
     {name: "zio",       cost: 3,        dice: "2d6 +wisdom"},
     {name: "agi",       cost: 4,        dice: "2d8 +wisdom"},
     {name: "garu",      cost: 3,        dice: "3d4 +wisdom"},
@@ -1413,6 +1414,9 @@ async function handle(text, platformObject, args, bots) {
 
         dndIO.writeCharacter(user.id, character);
         let ret = character.name + " cast " + spellTitle + " for " + spell.cost + " SP. They have " + character.stats.sp + " SP remaining.";
+        if (spell.cost == 0) {
+            ret = character.name + " used " + spellTitle + "."
+        }
         if (diceMessage) {
             ret += "\n\n" + diceMessage;
         }
