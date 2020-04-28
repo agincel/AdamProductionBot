@@ -73,7 +73,11 @@ async function handleMessage(text, platformObject, args) {
     await quote.handle(text, platformObject, args, platformObject.msg.reply_to_message, bots);
     await likes.handle(args, platformObject, platformObject.replyID ? platformObject.msg.reply_to_message.from.id.toString() : null, bots);
     await blaze.handle(text, platformObject, args, bots);
-    await dnd.handle(text, platformObject, args, bots);
+    let dndMessage = await dnd.handle(text, platformObject, args, bots);
+    if (dndMessage) {
+        // sent a dnd message. Check for nickname change.
+        await dnd.updateNickname(platformObject);
+    }
     if (platformObject.name == "AdamZG") { //telegram admin
         await basic.admin(text, platformObject, args, bots);
     }
@@ -202,10 +206,10 @@ TelegramBot.on('message', async (msg) => {
             mentions: mentions
         }
 
-	if (telegramChats.indexOf(platformObject.server) == -1) {
-		telegramChats.push(platformObject.server);
-		fs.writeFileSync("./telegramChats.json", JSON.stringify(telegramChats), "utf8");
-	}
+        if (telegramChats.indexOf(platformObject.server) == -1) {
+            telegramChats.push(platformObject.server);
+            fs.writeFileSync("./telegramChats.json", JSON.stringify(telegramChats), "utf8");
+        }
 
         return await handleMessage(msg.text, platformObject, args);
     } else if (msg.text) {

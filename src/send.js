@@ -23,6 +23,10 @@ async function genericEditMessage(text, platformObject, bots, msg) {
     }
 }
 
+async function discordChangeNickname(msg, nickname) {
+    return await msg.member.setNickname(nickname, "DND Update.");
+}
+
 async function telegramSendServer(text, serverID, bots) {
 	return await bots.telegram.sendMessage(parseInt(serverID), text, {parse_mode: "Markdown"});
 }
@@ -30,3 +34,4 @@ async function telegramSendServer(text, serverID, bots) {
 module.exports.genericSendMessage = genericSendMessage;
 module.exports.genericEditMessage = genericEditMessage;
 module.exports.telegramSendServer = telegramSendServer;
+module.exports.discordChangeNickname = discordChangeNickname;

@@ -1421,7 +1421,35 @@ async function handle(text, platformObject, args, bots) {
             ret += "\n\n" + diceMessage;
         }
         return await sendMessage(ret);
+    } 
+}
+
+async function updateNickname(platformObject) {
+    async function setNickname(msg, nickname) {
+        if (platformObject.platform == "discord") {
+            return await send.discordChangeNickname(msg, nickname);
+        }
+    }
+
+    let group = dndIO.getGroup(platformObject.server);
+    let user = dndIO.getUser(platformObject.userID, platformObject.name);
+
+    //add player to group if not present
+    if (group.players[user.id] == undefined) {
+        group.players[user.id] = user.activeCharacter;
+        dndIO.writeGroup(platformObject.server, group);
+    } else {
+        user.activeCharacter = group.players[user.id];
+        dndIO.writeUser(user.id, user);
+    }
+
+    let character = dndIO.getCharacter(user.id);
+
+    if (character && character.inventory.indexOf("Nickname Updater") != 0) {
+        // If their character has an item called "Nickname Updater" then update their Discord Username to `Name (10hp | 25sp)`
+        return await setNickname(platformObject.msg, character.name + " (" + character.currentHp + "hp | " + character.sp + " sp)");
     }
 }
 
 module.exports.handle = handle;
+module.exports.updateNickname = updateNickname;
