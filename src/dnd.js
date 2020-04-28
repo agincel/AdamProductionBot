@@ -1427,7 +1427,6 @@ async function handle(text, platformObject, args, bots) {
 async function updateNickname(platformObject) {
     async function setNickname(msg, nickname) {
         if (platformObject.platform == "discord") {
-            console.log("Platform name was discord.");
             return await send.discordChangeNickname(msg, nickname);
         }
     }
@@ -1445,14 +1444,13 @@ async function updateNickname(platformObject) {
     }
 
     let character = dndIO.getCharacter(user.id);
-    console.log("Checking " + platformObject.name + " for nickname update.");
-    console.log("Do they have the nickname updater?");
-    console.log(character.inventory.indexOf("Nickname Updater") != -1);
 
     if (character && character.inventory.indexOf("Nickname Updater") != -1) {
-        console.log("Updating nickname.");
         // If their character has an item called "Nickname Updater" then update their Discord Username to `Name (10hp | 25sp)`
-        return await setNickname(platformObject.msg, character.name + " (" + character.currentHp + "hp | " + character.sp + " sp)");
+        let newNickname = character.name + " (" + character.currentHp + "hp | " + character.sp + " sp)";
+        console.log(newNickname);
+        console.log(newNickname.length);
+        return await setNickname(platformObject.msg, newNickname);
     }
 }
 
