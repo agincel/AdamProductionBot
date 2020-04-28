@@ -1432,7 +1432,6 @@ async function updateNickname(platformObject) {
     async function setNickname(guildMember, nickname) {
         return await send.discordChangeNickname(guildMember, nickname);
     }
-    let group = dndIO.getGroup(platformObject.server);
 
     let guildMembers = platformObject.msg.guild.members.array();
     console.log("Found " + guildMembers.length + " guildmembers.");
@@ -1440,26 +1439,23 @@ async function updateNickname(platformObject) {
         let gm = guildMembers[i];
         console.log(gm.id);
         let user = dndIO.getUser(gm.id, null);
-        console.log(user);
-        //add player to group if not present
-        if (group.players[user.id]) {
-            console.log("Found user.");
-            user.activeCharacter = group.players[user.id];
-            dndIO.writeUser(user.id, user);
-            let character = dndIO.getCharacter(user.id);
-            if (character)
-                console.log("Found active Character: " + character.name);
-            if (character && character.inventory.indexOf("Nickname Updater") != -1) {
-                // If their character has an item called "Nickname Updater" then update their Discord Username to `Name (10hp | 25sp)`
-                let newNickname = character.name + " (" + character.stats.currentHp + "hp | " + character.stats.sp + "sp)";
-                console.log(newNickname);
-                if (newNickname.length > 32) {
-                    // If the nickname would exceed the Discord character limit, cut it off.
-                    newNickname = newNickname.substr(0, 32);
-                }
-                await setNickname(gm, newNickname);
+        console.log(user.username);
+        let character = dndIO.getCharacter(user.id);
+        if (character) {
+            console.log("Found active Character: " + character.name);
+            console.log(character.inventory);
+        }
+        if (character && character.inventory.indexOf("Nickname Updater") != -1) {
+            // If their character has an item called "Nickname Updater" then update their Discord Username to `Name (10hp | 25sp)`
+            let newNickname = character.name + " (" + character.stats.currentHp + "hp | " + character.stats.sp + "sp)";
+            console.log(newNickname);
+            if (newNickname.length > 32) {
+                // If the nickname would exceed the Discord character limit, cut it off.
+                newNickname = newNickname.substr(0, 32);
             }
-        } 
+            await setNickname(gm, newNickname);
+        }
+        
     }
 }
 
