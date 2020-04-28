@@ -29,6 +29,7 @@ async function genericEditMessage(text, platformObject, bots, msg) {
 }
 
 async function discordChangeNickname(guildMember, nickname) {
+    console.log("ATTEMPT NICKNAME UPDATE.");
     return await guildMember.setNickname(nickname, "DND Update.");
 }
 

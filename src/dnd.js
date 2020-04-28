@@ -1435,11 +1435,10 @@ async function updateNickname(platformObject) {
     let group = dndIO.getGroup(platformObject.server);
 
     let guildMembers = platformObject.msg.guild.members.array();
-    console.log(guildMembers);
-    console.log(guildMembers.length);
+    console.log("Found " + guildMembers.length + " guildmembers.");
     for (let i = 0; i < guildMembers.length; i++) {
         let gm = guildMembers[i];
-        console.log(gm);
+        console.log(gm.id);
         let user = dndIO.getUser(gm.id, null);
         console.log(user);
         //add player to group if not present
@@ -1448,9 +1447,11 @@ async function updateNickname(platformObject) {
             user.activeCharacter = group.players[user.id];
             dndIO.writeUser(user.id, user);
             let character = dndIO.getCharacter(user.id);
+            console.log("Found active Character: " + character.name);
             if (character && character.inventory.indexOf("Nickname Updater") != -1) {
                 // If their character has an item called "Nickname Updater" then update their Discord Username to `Name (10hp | 25sp)`
                 let newNickname = character.name + " (" + character.stats.currentHp + "hp | " + character.stats.sp + "sp)";
+                console.log(newNickname);
                 if (newNickname.length > 32) {
                     // If the nickname would exceed the Discord character limit, cut it off.
                     newNickname = newNickname.substr(0, 32);
