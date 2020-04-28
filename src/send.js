@@ -28,8 +28,8 @@ async function genericEditMessage(text, platformObject, bots, msg) {
     }
 }
 
-async function discordChangeNickname(msg, nickname) {
-    return await msg.member.setNickname(nickname, "DND Update.");
+async function discordChangeNickname(guildMember, nickname) {
+    return await guildMember.setNickname(nickname, "DND Update.");
 }
 
 async function telegramSendServer(text, serverID, bots) {

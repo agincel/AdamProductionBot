@@ -1190,7 +1190,7 @@ async function handle(text, platformObject, args, bots) {
 
             return await sendMessage(name + " took " + damage + " points of damage. " + flavor[getFlavorIndex(targetedEnemy.stats.currentHp / targetedEnemy.stats.hp)]);
         }
-    } else if (args[0] == "/heal") {
+    } else if (args[0] == "/heal" || args[0] == "/restorehp") {
         let heal = parseInt(args[args.length - 1]);
         if (args.length == 1 || (args.length == 2 && isNaN(heal))) {
             return await sendMessage("USAGE by Players: " + args[0] + "X - Heal your own character for X.\nUSAGE by Players on Enemies: " + args[0] + " 0 X - Heals active enemy 0 for X.\n\nUSAGE by DM on Players or Players on Players: " + args[0] + " @user X - Heals @user's character for X.");
@@ -1425,34 +1425,34 @@ async function handle(text, platformObject, args, bots) {
 }
 
 async function updateNickname(platformObject) {
-    async function setNickname(msg, nickname) {
-        if (platformObject.platform == "discord") {
-            return await send.discordChangeNickname(msg, nickname);
-        }
+    if (platformObject.platform != "discord") {
+        return null; // This feature is exclusive to Discord for now.
     }
 
+    async function setNickname(guildMember, nickname) {
+        return await send.discordChangeNickname(guildMember, nickname);
+    }
     let group = dndIO.getGroup(platformObject.server);
-    let user = dndIO.getUser(platformObject.userID, platformObject.name);
 
-    //add player to group if not present
-    if (group.players[user.id] == undefined) {
-        group.players[user.id] = user.activeCharacter;
-        dndIO.writeGroup(platformObject.server, group);
-    } else {
-        user.activeCharacter = group.players[user.id];
-        dndIO.writeUser(user.id, user);
-    }
-
-    let character = dndIO.getCharacter(user.id);
-
-    if (character && character.inventory.indexOf("Nickname Updater") != -1) {
-        // If their character has an item called "Nickname Updater" then update their Discord Username to `Name (10hp | 25sp)`
-        let newNickname = character.name + " (" + character.stats.currentHp + "hp | " + character.stats.sp + "sp)";
-        if (newNickname.length > 32) {
-            // If the nickname would exceed the Discord character limit, cut it off.
-            newNickname = newNickname.substr(0, 32);
-        }
-        return await setNickname(platformObject.msg, newNickname);
+    let guildMembers = platformObject.msg.guild.members.array();
+    for (let i = 0; i < guildMembers.length; i++) {
+        let gm = guildMembers[i];
+        let user = dndIO.getUser(gm.id, null);
+        //add player to group if not present
+        if (group.players[user.id]) {
+            user.activeCharacter = group.players[user.id];
+            dndIO.writeUser(user.id, user);
+            let character = dndIO.getCharacter(user.id);
+            if (character && character.inventory.indexOf("Nickname Updater") != -1) {
+                // If their character has an item called "Nickname Updater" then update their Discord Username to `Name (10hp | 25sp)`
+                let newNickname = character.name + " (" + character.stats.currentHp + "hp | " + character.stats.sp + "sp)";
+                if (newNickname.length > 32) {
+                    // If the nickname would exceed the Discord character limit, cut it off.
+                    newNickname = newNickname.substr(0, 32);
+                }
+                await setNickname(gm, newNickname);
+            }
+        } 
     }
 }
 

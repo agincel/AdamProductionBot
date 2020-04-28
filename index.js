@@ -76,7 +76,6 @@ async function handleMessage(text, platformObject, args) {
     let dndMessage = await dnd.handle(text, platformObject, args, bots);
     if (dndMessage) {
         // sent a dnd message. Check for nickname change.
-        console.log("did get dnd message, time to check for nickname update.");
         await dnd.updateNickname(platformObject);
     }
     if (platformObject.name == "AdamZG") { //telegram admin
