@@ -1199,11 +1199,6 @@ async function handle(text, platformObject, args, bots) {
             targetedEnemy.stats.currentHp = Math.max(targetedEnemy.stats.currentHp - damage, 0);
             let name = targetedEnemy.name;
 
-            let deadS = " (DEAD, DM clear with " + prefix + "removeEnemy)";
-            if (targetedEnemy.stats.currentHp == 0 && targetedEnemy.name.indexOf(deadS) == -1) {
-                targetedEnemy.name = targetedEnemy.name + deadS;
-            }
-
             dndIO.writeGroup(platformObject.server, group);
 
             return await sendMessage(name + " took " + damage + " points of damage. " + flavor[getFlavorIndex(targetedEnemy.stats.currentHp / targetedEnemy.stats.hp)]);
@@ -1286,11 +1281,6 @@ async function handle(text, platformObject, args, bots) {
 
             targetedEnemy.stats.currentHp = Math.min(targetedEnemy.stats.currentHp + heal, targetedEnemy.stats.hp);
             let name = targetedEnemy.name;
-
-            let indOf = targetedEnemy.name.indexOf(" (DEAD, DM clear with " + prefix + "removeEnemy)");
-            if (indOf >= 0) {
-                targetedEnemy.name = targetedEnemy.name.substring(0, indOf);
-            }
 
             dndIO.writeGroup(platformObject.server, group);
 
