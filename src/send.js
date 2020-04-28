@@ -5,11 +5,16 @@
     (C) Adam Gincel - 2018
 */
 
+function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function genericSendMessage(text, platformObject, bots) {
     if (platformObject.platform == "telegram") {
         let ret = await bots.telegram.sendMessage(parseInt(platformObject.server), text, {parse_mode: "Markdown"});
         return ret;
     } else {
+        await timeout(333);
         let ret = await platformObject.msg.channel.send(text);
         return ret;
     }
