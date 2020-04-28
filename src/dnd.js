@@ -1447,9 +1447,11 @@ async function updateNickname(platformObject) {
 
     if (character && character.inventory.indexOf("Nickname Updater") != -1) {
         // If their character has an item called "Nickname Updater" then update their Discord Username to `Name (10hp | 25sp)`
-        let newNickname = character.name + " (" + character.currentHp + "hp | " + character.sp + " sp)";
-        console.log(newNickname);
-        console.log(newNickname.length);
+        let newNickname = character.name + " (" + character.stats.currentHp + "hp | " + character.stats.sp + " sp)";
+        if (newNickname.length > 32) {
+            // If the nickname would exceed the Discord character limit, cut it off.
+            newNickname = newNickname.substr(0, 32);
+        }
         return await setNickname(platformObject.msg, newNickname);
     }
 }
