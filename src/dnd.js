@@ -1435,11 +1435,16 @@ async function updateNickname(platformObject) {
     let group = dndIO.getGroup(platformObject.server);
 
     let guildMembers = platformObject.msg.guild.members.array();
+    console.log(guildMembers);
+    console.log(guildMembers.length);
     for (let i = 0; i < guildMembers.length; i++) {
         let gm = guildMembers[i];
+        console.log(gm);
         let user = dndIO.getUser(gm.id, null);
+        console.log(user);
         //add player to group if not present
         if (group.players[user.id]) {
+            console.log("Found user.");
             user.activeCharacter = group.players[user.id];
             dndIO.writeUser(user.id, user);
             let character = dndIO.getCharacter(user.id);
