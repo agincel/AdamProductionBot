@@ -1351,8 +1351,10 @@ async function handle(text, platformObject, args, bots) {
                 s += "🙁";
             } else if (percentage > .1) {
                 s += "😢";
-            } else {
+            } else if (percentage > 0) {
                 s += "😨";
+            } else {
+                s += "💀";
             }
 
             s += "`\n";
