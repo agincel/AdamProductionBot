@@ -1344,9 +1344,9 @@ async function handle(text, platformObject, args, bots) {
             return await sendMessage(character.name + " restored " + heal + " SP. They are now at " + character.stats.sp + " SP.");
         }
     } else if (args[0] == "/enemies") {
-        let s = "Currently Spawned Enemies:\n\n```";
+        let s = "Currently Spawned Enemies:\n\n";
         for (let i = 0; i < group.enemies.length; i++) {
-            s += i.toString() + ": " + group.enemies[i].name;
+            s += "`" + i.toString() + ": " + group.enemies[i].name;
             let percentage = group.enemies[i].stats.currentHp / group.enemies[i].stats.hp;
             s += " | ";
             if (percentage > .9) {
@@ -1365,9 +1365,9 @@ async function handle(text, platformObject, args, bots) {
                 s += "😨";
             }
 
-            s += "\n";
+            s += "`\n";
         }
-        s += "```";
+
 
         return await sendMessage(s);
     } else if (args[0] == "/pay") {
