@@ -161,8 +161,9 @@ function getEnemySetup(prefix) {
 function getDmHelp(prefix) {
     let s = "DM Commands:\n\n";
 
-    s += prefix + "spawn 0 - Would spawn Enemy 0 from your enemies list. Enemies can be targeted by players.\n";
+    s += prefix + "spawn 0 1 - Would spawn 1 Enemy 0 from your enemies list. Enemies can be targeted by players.\n";
     s += prefix + "removeEnemy 0 - Would remove Enemy 0 from the enemies list. Usually done once the enemy is killed.\n";
+    s += prefix + "clearEnemies - Remove all enemies from the enemies list.\n"
     s += prefix + "pay @user X - Would add X money to the character used by the tagged user.\n";
     s += prefix + "enemies - View a list of all spawned enemies.\n";
     s += prefix + "save @user STR - Has @user make a Strength Saving Throw. Uses that user's active character's relevant modifier, and returns the result.\n";
@@ -363,15 +364,22 @@ async function handle(text, platformObject, args, bots) {
                 return await sendMessage(args[1] + " is not a valid integer.");
             }
 
+            let quantity = 1;
+            if (args.length == 3 && !isNaN(parseInt(args[2]))) {
+                quantity = parseInt(args[2]);
+            }
+
             let enemyToSpawn = user.enemies[v];
             if (!enemyToSpawn) {
                 return await sendMessage("Unable to find Enemy #" + v + " in your enemies list. Check your enemies list with " + prefix + "myEnemies");
             }
 
-            group.enemies.push(JSON.parse(JSON.stringify(enemyToSpawn)));
+            for (let i = 0; i < quantity; i++) {
+                group.enemies.push(JSON.parse(JSON.stringify(enemyToSpawn)));
+            }
             dndIO.writeGroup(platformObject.server, group);
 
-            return await sendMessage(enemyToSpawn.name + " appeared!\n\nView all enemies with " + prefix + "enemies");
+            return await sendMessage(enemyToSpawn.name + " (" + quantity.toString() + ")  appeared!\n\nView all enemies with " + prefix + "enemies");
         } else {
             return await sendMessage("Only the DM can spawn enemies with the " + args[0] + " command.");
         }
@@ -397,6 +405,16 @@ async function handle(text, platformObject, args, bots) {
             dndIO.writeGroup(platformObject.server, group);
 
             return await sendMessage(enemyName + " has been removed.");
+        } else {
+            return await sendMessage("Only the DM can remove enemies with the " + args[0] + " command.");
+        }
+    } else if (args[0] == "/clearenemies") {
+        if (group.dm == user.id) {
+            //you are the DM
+            group.enemies = [];
+            dndIO.writeGroup(platformObject.server, group);
+
+            return await sendMessage("All enemies have been removed.");
         } else {
             return await sendMessage("Only the DM can remove enemies with the " + args[0] + " command.");
         }
@@ -1328,7 +1346,25 @@ async function handle(text, platformObject, args, bots) {
     } else if (args[0] == "/enemies") {
         let s = "Currently Spawned Enemies:\n\n";
         for (let i = 0; i < group.enemies.length; i++) {
-            s += i.toString() + ": " + group.enemies[i].name + "\n";
+            s += i.toString() + ": " + group.enemies[i].name;
+            let percentage = group.enemies[i].stats.currentHp / group.enemies[i].stats.hp;
+            if (percentage > .9) {
+                s += "😃";
+            } else if (percentage > .7) {
+                s += "🙂";
+            } else if (percentage > .5) {
+                s += "😐";
+            } else if (percentage > .4) {
+                s += "😑";
+            } else if (percentage > .25) {
+                s += "🙁";
+            } else if (percentage > .1) {
+                s += "😢";
+            } else {
+                s += "😨";
+            }
+
+            s += "\n";
         }
 
         return await sendMessage(s);
