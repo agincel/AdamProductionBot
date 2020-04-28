@@ -1447,7 +1447,8 @@ async function updateNickname(platformObject) {
             user.activeCharacter = group.players[user.id];
             dndIO.writeUser(user.id, user);
             let character = dndIO.getCharacter(user.id);
-            console.log("Found active Character: " + character.name);
+            if (character)
+                console.log("Found active Character: " + character.name);
             if (character && character.inventory.indexOf("Nickname Updater") != -1) {
                 // If their character has an item called "Nickname Updater" then update their Discord Username to `Name (10hp | 25sp)`
                 let newNickname = character.name + " (" + character.stats.currentHp + "hp | " + character.stats.sp + "sp)";
