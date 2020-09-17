@@ -7,7 +7,7 @@
 
 const send = require("./send.js");
 const fs = require("fs");
-const got = require("got");
+const axios = require("axios");
 
 const stateList = ["al", "ak", "az", "ar", "ca", "co", "ct", "de", "fl", "ga", 
                    "hi", "id", "il", "in", "ia", "ks", "ky", "la", "me", "md",
@@ -139,17 +139,17 @@ async function handle(text, platformObject, args, bots) {
             }
         }
 
-        const response = await got("https://api.covidtracking.com/v1/states/" + state + "/current.json", {json: true});
-        console.log(response.body);
+        const response = await axios("https://api.covidtracking.com/v1/states/" + state + "/current.json");
+        console.log(response.data);
 
-        let msg = "COVID-19 Data from covidtracking.com for " + state.toUpperCase() + " as of " + response.body.lastUpdateEt + ":\n\n";
-        msg += "Today's increase in cases: " + response.body.positiveIncrease + "\n";
-        msg += "Number of people currently hospitalized for COVID-19: " + response.body.hospitalizedCurrently + "\n";
-        msg += "Cumulative positive cases: " + response.body.positive + "\n";
-        msg += "Total number of tests given: " + response.body.totalTestResults + "\n";
-        msg += "Cumulative hospitalizations due to COVID-19: " + response.body.hospitalized + "\n";
-        msg += "Cumulative deaths due to COVID-19: " + response.body.deaths + "\n";
-        msg += "Cumulative confirmed recoveries from COVID-19: " + response.body.recovered + "\n\n.";
+        let msg = "COVID-19 Data from covidtracking.com for " + state.toUpperCase() + " as of " + response.data.lastUpdateEt + ":\n\n";
+        msg += "Today's increase in cases: " + response.data.positiveIncrease + "\n";
+        msg += "Number of people currently hospitalized for COVID-19: " + response.data.hospitalizedCurrently + "\n";
+        msg += "Cumulative positive cases: " + response.data.positive + "\n";
+        msg += "Total number of tests given: " + response.data.totalTestResults + "\n";
+        msg += "Cumulative hospitalizations due to COVID-19: " + response.data.hospitalized + "\n";
+        msg += "Cumulative deaths due to COVID-19: " + response.data.deaths + "\n";
+        msg += "Cumulative confirmed recoveries from COVID-19: " + response.data.recovered + "\n\n.";
         msg += "Stay safe. Keep distanced whenever possible. Wear a mask. Run `=covid pa` to hear about Pennsylvania, or do the same for any State Code.";
         return await sendMessage(msg);
     }
