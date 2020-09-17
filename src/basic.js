@@ -7,6 +7,13 @@
 
 const send = require("./send.js");
 const fs = require("fs");
+const got = require("got");
+
+const stateList = ["al", "ak", "az", "ar", "ca", "co", "ct", "de", "fl", "ga", 
+                   "hi", "id", "il", "in", "ia", "ks", "ky", "la", "me", "md",
+                   "ma", "mi", "mn", "ms", "mo", "mt", "ne", "nv", "nh", "nj",
+                   "nm", "ny", "nc", "nd", "oh", "ok", "or", "pa", "ri", "sc",
+                   "sd", "tn", "tx", "ut", "vt", "va", "wa", "wv", "wi", "wy"];
 
 async function handle(text, platformObject, args, bots) {
     async function sendMessage (text) {
@@ -123,6 +130,28 @@ async function handle(text, platformObject, args, bots) {
         }
 
         return await sendMessage(shrunkText);
+    }
+    else if (args[0] == "/covid") {
+        let state = "nj";
+        if (args.length > 1) {
+            if (stateList.includes(args[1])) {
+                state = args[1];
+            }
+        }
+
+        const response = await got("https://api.covidtracking.com/v1/states/" + state + "/current.json", {json: true});
+        console.log(response.body);
+
+        let msg = "COVID-19 Data from covidtracking.com for " + state.toUpperCase() + " as of " + response.body.lastUpdateEt + ":\n\n";
+        msg += "Today's increase in cases: " + response.body.positiveIncrease + "\n";
+        msg += "Number of people currently hospitalized for COVID-19: " + response.body.hospitalizedCurrently + "\n";
+        msg += "Cumulative positive cases: " + response.body.positive + "\n";
+        msg += "Total number of tests given: " + response.body.totalTestResults + "\n";
+        msg += "Cumulative hospitalizations due to COVID-19: " + response.body.hospitalized + "\n";
+        msg += "Cumulative deaths due to COVID-19: " + response.body.deaths + "\n";
+        msg += "Cumulative confirmed recoveries from COVID-19: " + response.body.recovered + "\n\n.";
+        msg += "Stay safe. Keep distanced whenever possible. Wear a mask. Run `=covid pa` to hear about Pennsylvania, or do the same for any State Code.";
+        return await sendMessage(msg);
     }
 }
 
