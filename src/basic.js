@@ -140,7 +140,6 @@ async function handle(text, platformObject, args, bots) {
         }
 
         const response = await axios("https://api.covidtracking.com/v1/states/" + state + "/current.json");
-        console.log(response.data);
 
         let msg = "COVID-19 Data from covidtracking.com for " + state.toUpperCase() + " as of " + response.data.lastUpdateEt + ":\n\n";
         msg += "Today's increase in cases: " + response.data.positiveIncrease + "\n";
@@ -149,7 +148,7 @@ async function handle(text, platformObject, args, bots) {
         msg += "Total number of tests given: " + response.data.totalTestResults + "\n";
         msg += "Cumulative hospitalizations due to COVID-19: " + response.data.hospitalized + "\n";
         msg += "Cumulative deaths due to COVID-19: " + response.data.deaths + "\n";
-        msg += "Cumulative confirmed recoveries from COVID-19: " + response.data.recovered + "\n\n.";
+        msg += "Cumulative confirmed recoveries from COVID-19: " + response.data.recovered + "\n\n";
         msg += "Stay safe. Keep distanced whenever possible. Wear a mask. Run `=covid pa` to hear about Pennsylvania, or do the same for any State Code.";
         return await sendMessage(msg);
     }
