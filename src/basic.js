@@ -147,7 +147,6 @@ async function handle(text, platformObject, args, bots) {
         msg += "Cumulative positive cases: " + response.data.positive + "\n";
         msg += "Total number of tests given: " + response.data.totalTestResults + "\n";
         msg += "Cumulative hospitalizations due to COVID-19: " + response.data.hospitalized + "\n";
-        msg += "Cumulative deaths due to COVID-19: " + response.data.deaths + "\n";
         msg += "Cumulative confirmed recoveries from COVID-19: " + response.data.recovered + "\n\n";
         msg += "Stay safe. Keep distanced whenever possible. Wear a mask. Run `=covid pa` to hear about Pennsylvania, or do the same for any State Code.";
         return await sendMessage(msg);
