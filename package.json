@@ -23,7 +23,7 @@
     "discord.js": "^11.3.2",
     "extend": ">=3.0.2",
     "fs": "0.0.1-security",
-    "lodash": ">=4.17.12",
+    "lodash": ">=4.17.21",
     "node-telegram-bot-api": "^0.30.0",
     "sha1": "^1.1.1",
     "stringstream": ">=0.0.6"
